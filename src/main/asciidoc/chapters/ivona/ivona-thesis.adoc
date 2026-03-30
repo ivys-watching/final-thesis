@@ -1,0 +1,910 @@
+= Database Architecture Strategies Focused on Storing Machine to Machine Data
+Ivona Riszteszki <RIS210573@spengergasse.at>
+
+
+== Abstract
+The rapid growth of real-time mobile applications has led to an increasing demand for secure, scalable and reliable storage solutions for high-frequency machine-to-machine data. +
+This thesis investigates which database architecture management system architecture best supports the secure and scalable storage of real-time machine-to-machine geolocation data in a mobile application. Relational and non-relational approaches are evaluated with respect to specific requirements. +
+To address future growth and technical measures for secure data storage, growth scenarios are simulated with a sharding strategy developed to support the predicted user base of the application. The thesis further presents a compliant backup architecture combining PostgreSQL-specific features such as WAL archiving, base backups and furthermore encrypted storage. +
+The findings demonstrate that a relational PostgreSQL database architecture can efficiently support high-frequency geolocation workloads when properly indexed and combined with an appropriate scaling and backup strategy, while also considering performed benchmark tests. +
+The work provides both theoretical analysis and practical implementation guidance for developers designing secure, real-time location-based mobile systems.
+
+== Introduction
+
+*Problem Statement:* Storing high-frequency machine-to-machine geolocation data securely and reliably in a mobile application
+
+*Motivation:* Growth of real-time tracking system and practical implementation in mobile applications
+
+*Research question:* Which database architecture strategy best supports secure, scalable, and reliable storage of real-time M2M geolocation data in a mobile application?
+
+=== Scope of Project
+
+The application that will be developed in the scope of this thesis work is HomeSafe, a mobile application that tracks geolocation data that is stored on a machine-to-machine basis. The requirements for the project are as follows:
+
+* Consistency across all user accounts
+* Scalability in case the application user base grows. Currently, the application is only planned to be marketed in Vienna, Austria, with plans for future expansion.
+* Ease of use, as it is possible that other developer teams continue working on the application.
+* Maximal security, as the app deals with real-time location data in emergency situations. This technical measure is also needed for keeping personal data of users as safe as possible.
+* Reliability, since the application should have long-term support with as little data loss as possible, ideally none.
+
+This thesis aims to compare different database management systems based on these criteria. I will consider both relational (SQL) and non-relational (NoSQL) databases.
+
+== Chapter 1. Characteristics of Machine-to-Machine Data
+
+=== 1.1 What is Machine-to-Machine Communication?
+
+==== 1.1.1 Definition
+
+Machine-to-machine (M2M) is defined as direct communication between two devices without human intervention, either through wires or wireless. <<_1, [1]>> M2M systems are especially important for real-time data provision as well as increased efficiency when handling data. <<_2, [2]>>
+
+==== 1.1.2 Differences to Human-Generated Data
+
+Human-generated data is made by humans, such as the contents of an email, a written document, images, audio files, etc. Conversely, machine-to-machine data is collected automatically through sensors, devices, or systems with no human intervention. This includes GPS tracking, a vending machine tracking its own stock, ATMs tracking the amount of banknotes, etc. M2M data is typically structured, high-volume and automated, while human-generated data is unstructured with a lower volume and slower.
+
+==== 1.1.3 Implementation in Mobile Applications
+
+M2M communication is typically implemented in mobile devices using cellular networks, GPS, and Wi-Fi.
+For geolocation-based mobile applications, the most important features of M2M data would be:
+
+* High write frequency
+* Real-time read requirements
+* Potential burst traffic in emergencies
+* Sensitive personal data security
+
+== Chapter 2. Theoretical Foundations
+
+=== 2.1 What is a Database Management System?
+
+A database management system (‘DBMS’) is a connection point between the user and the database, allowing the user to access, change and organize the database and the data if needed. <<_3, [3]>> Charles W. Bachmann created the first database management tool, IDS, which was tested and running by 1963. <<_4, [4]>> This set off an increased interest in database management as well as the development of new approached, most notably MySQL in 1995 <<_5, [5]>>, PostgreSQL in 1996 <<_6, [6]>> and NoSQL (“not only SQL”) in the 2000’s. <<_7, [7]>>
+
+=== 2.2 Difference between SQL and NoSQL Databases
+
+The decision to use relational or non-relational databases always depends on the project. There are some key features and differences that need to be considered before using one or the other.
+
+==== 2.2.1 SQL Databases
+
+All SQL databases are relational. SQL stands for “Structured Query Language”. Data is stored in rows and tables that are related to each other in various ways by having mapped out relationships. Typical code for generating an SQL table might look like this:
+
+[source,mysql]
+----
+CREATE TABLE IF NOT EXISTS users (
+    id int PRIMARY KEY auto_increment,
+    auth0_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name_encrypted TEXT,
+    phone_encrypted TEXT,
+    emergency_contact_encrypted TEXT,
+    home_latitude DOUBLE PRECISION,
+    home_longitude DOUBLE PRECISION,
+    location_sharing_consent BOOLEAN NOT NULL DEFAULT false,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    gdpr_consent_date TIMESTAMP,
+    last_login TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+----
+In order to populate the created database, the developer then has to write insert statements, for example:
+[source,mysql]
+----
+INSERT INTO users (
+    auth0_id,
+    email,
+    name_encrypted,
+    phone_encrypted,
+    emergency_contact_encrypted,
+    home_latitude,
+    home_longitude,
+    location_sharing_consent,
+    is_active,
+    gdpr_consent_date,
+    last_login,
+    updated_at
+) VALUES
+(
+    'auth0|u7f3k29a1',
+    'sarah.connor@example.com',
+    'U2FsdGVkX1+zEncryptedName1',
+    'U2FsdGVkX1+zEncryptedPhone1',
+    'U2FsdGVkX1+zEncryptedEmergency1',
+    34.052235,
+    -118.243683,
+    true,
+    true,
+    '2025-06-01 10:15:00',
+    '2026-02-10 08:30:00',
+    CURRENT_TIMESTAMP
+);
+----
+
+With three inserted rows, the exported result from this table might look like this:
+
+.First eight columns (broken up for readability)
+image::../themes/pdf/fig1_mysqloutput1.png[width=800, height=300]
+
+.Last six columns
+image::../themes/pdf/fig2_mysqloutput2.png[width=800, height=400]
+
+---
+
+===== ACID Model
+
+SQL databases are structured over the ACID model. ACID stands for atomicity, consistency, isolation and durability. According to <<_8, [8]>>, the definitions for the properties are as follows.
+
+====== Atomicity
+
+Atomicity ensures that all steps within a single transaction are fully completed. If they are not – for example, if the last step fails – all of them are reverted to their original state.
+
+====== Consistency
+
+Consistency ensures that data is following predefined rules and constraints in order to achieve integrity and correctness. <<_9, [9]>>
+
+====== Isolation
+
+Isolation ensures that all processes (operations and calls to the database) are independent from one another, even if they’re executed at the same time.
+
+====== Durability
+
+Durability ensures that the database keeps all data that has already been saved, even if the system experiences a failure. All changes must be permanent and must not be impacted by future system failures.
+
+The most popular DBMS for SQL are MySQL and PostgreSQL. Though they are both relational DBMS, they contain different features and advantages to their use.
+
+
+==== 2.2.2 NoSQL Databases
+
+The following would be a typical NoSQL document structure creation. As is visible on the following graphic, there is not a set column structure that the developer has to follow when inserting data. Instead, data is inserted on creation of the row and assorted into the columns that are named.
+
+[source, mongodb-json]
+----
+db.getCollection("users").find({})
+db.users.insertMany([
+  {
+    auth0_id: "auth0|u7f3k29a1",
+    email: "sarah.connor@example.com",
+    name_encrypted: "U2FsdGVkX1+zEncryptedName1",
+    phone_encrypted: "U2FsdGVkX1+zEncryptedPhone1",
+    emergency_contact_encrypted: "U2FsdGVkX1+zEncryptedEmergency1",
+    home_location: {
+      latitude: 34.052235,
+      longitude: -118.243683
+    },
+    location_sharing_consent: true,
+    is_active: true,
+    created_at: new Date(),
+    gdpr_consent_date: new Date("2025-06-01T10:15:00Z"),
+    last_login: new Date("2026-02-10T08:30:00Z"),
+    updated_at: new Date()
+  }, // ...
+]);
+----
+---
+
+After inserting three objects, this would be the output:
+
+.First seven columns (broken up for readability)
+image::../themes/pdf/fig3_mongodboutput1.png[width=800, height=300]
+
+.Last six columns
+image::../themes/pdf/fig4_mongodboutput2.png[width=800, height=400]
+---
+
+===== BASE Architecture
+
+NoSQL databases use the BASE architecture. BASE stands for Basically Available, Soft state, Eventual Consistency.
+
+====== Basically available
+
+The system will be available, even in the event of a failure.
+
+====== Soft state
+
+The state of the data changes without application interaction, which is connected to eventual consistency.
+
+====== Eventual consistency
+
+The system will eventually be consistent after the application input or data change, but the consistency is not guaranteed immediately or at a transaction level. <<_18, [18]>>
+
+=== 2.3 Usage and Popularity of Databases
+
+The following StackOverflow graphic from 2025 details DBMS usage by professional developers in the industry. Overall, relational databases like PostgreSQL and MySQL still dominate the industry. However, in 5th place and with around 30% of users, noSQL DBMS like Redis are also becoming a popular option with MongoDB following close behind.
+
+.https://survey.stackoverflow.co/2025/technology#most-popular-technologies-database-prof[Source: Stack Overflow]
+image::../themes/pdf/fig5_SO_survey.png[width=800, height=600]
+
+== Chapter 3. Comparative Evaluation
+
+=== 3.1 SQL Databases
+
+==== 3.1.1 MySQL
+
+MySQL is a database that is considered reliable and well performing with the open source fork MariaDB, a free community edition as well as a paid alternative. It is included in the popular LAMP stack (Linux, Apache, MySQL, Python/Perl/PHP). <<_10, [10]>>
+
+===== Scalability
+
+MySQL is considered highly scalable, with different strategies that can be implemented for best results. Indexing, query optimization, connection pooling and caching are just some of the best-practice options in order to increase good maintenance of the systems, make them more scalable and less demanding. <<_11, [11]>>
+
+===== Ease of use
+
+MySQL is considered easy to use, as it works with basic SQL. There is also an abundant ecosystem and documentation surrounding it, considering its vast area of implementation and maturity.
+
+===== Security
+
+The DBMS is regularly updated and is overall kept secure because of its maturity and community of developers. Its wide enterprise implementation makes it so there are frequent security patches releases, making it a stable choice.
+
+===== Reliability
+
+MySQL’s main feature remains its maturity – both from a data and a developer perspective, its long-term support makes it a reliable option.
+
+==== 3.1.2 PostgreSQL
+
+PostgreSQL is another popular DBMS option with a wide array of open-source database choices available. <<_12, [12]>>
+
+===== Scalability
+
+PostgreSQL can handle large amounts of data and grow without affecting query performance and data integrity. There are also suggested best practices in order to ensure better scalability, namely indexing, query optimization and identifying areas for improvement using the EXPLAIN ANALYZE command when querying. <<_13, [13]>>
+
+===== Ease of use
+
+PostgreSQL is still considered relatively easy to use for developers familiar with SQL. It comes with comprehensive documentation and user-friendly tools, making it an accessible DBMS to beginners as well as experienced users. <<_14, [14]>>
+
+===== Security
+
+With support for client authentication, access control, TLS and encryption at rest, as well as other strategies for failover and backup of data, PostgreSQL offers multiple security mechanisms that can protect data in a highly efficient way. <<_15, [15]>>
+
+===== Reliability
+
+By relying on SQL and having a mature community of developers, PostgreSQL remains a predictable and reliable option. <<_16, [16]>> Some users cite personal experience with the lack of data loss in PostgreSQL when compared to other DMBS. <<_17, [17]>>
+
+=== 3.2 NoSQL Databases
+
+==== 3.2.1 MongoDB
+
+MongoDB is an open source, nonrelational DBMS. It uses documents and collections of documents as basic units of data. The format it uses is Binary JSON.<<_19, [19]>> MongoDB got released in 2009, making it the newest option for a DBMS in this thesis.
+
+===== Scalability
+
+MongoDB supports horizontal scaling through sharding, distributing data across multiple servers. It is able to keep up a high performance even as data volume grows. However, sharding might be a complex process with MongoDB. Improper shard key selections can result in uneven data distribution.<<_20, [20]>>
+
+===== Ease of use
+
+Even though MongoDB is often criticised when it comes to its application in more complex applications, the ease of use for the DBMS makes some industry experts recommend it as the standout choice for junior developers. With this DBMS; the developers have less to worry about when it comes to complexity – it uses embedding instead of joins and has simpler queries overall.<<_21, [21]>>
+
+===== Security
+
+MongoDB has built-in TLS/SSL encryption, role-based access control, auditing features, query history and session tracking, making it a viable option if the developer configures security features.<<_22, [22]>>
+
+===== Reliability
+
+While MongoDB has an active community that generally answers queries fast, several issues have been noted in past releases of the DBMS. Stale and wrong reads are noted to be a problem, as some read operations retrieve outdated information. It was first released in 2009, making it a relatively newer option.<<_23, [23]>>
+
+==== 3.2.2 Redis
+
+Redis (REmote DIctionary Server) is an open-source, in-memory NoSQL key-value DBMS. As it is an in-memory data store, it should offer extremely low latency and high throughput compared to traditional disk-based databases. It is schema-less and optimized for speed.<<_24, [24]>>
+
+===== Scalability
+
+Redis supports both horizontal and vertical scaling through Redis Cluster (sharding data across nodes for write/read scaling) and replicating data by reading from multiple replica nodes for scaling read queries.<<_25, [25]>>
+
+===== Ease of Use
+
+Redis is overall considered easy to use, especially recommended in the industry for having similar data structures as programming languages that a lot of developers would already be familiar with, such as hash tables, lists/queues and sets. It is a simple to use and implement option. <<_26, [26]>>
+
+===== Security
+
+Redis has built-in ACLs, authentication TLS support (encryption) and is in “protected mode” by default. Redis Enterprise Features also include audit logs, role-based access control and encryption at rest. <<_27, [27]>>
+
+===== Reliability
+
+As Redis is designed primarily for speed, there is a risk of data loss. Improper configuration or server crashes can result in losing data that had not yet been written to disk. As an in-memory database, Redis could consume more RAM that possibly available, possibly triggering OOM (Out of Memory) kills, crashing the instance. Scalability and memory limits are of importance when first starting with Redis. <<_28, [28]>>
+
+=== 3.3 Final Comparative Evaluation
+Following is a table comparing all of the presented options concisely based on the highlighted criteria.
+
+[cols="13%,10%,20%,17%,20%,20%", options="header"]
+|===
+| DBMS | Type | Scalability | Ease of Use | Security | Reliability
+
+| MySQL
+| SQL / Relational
+| High vertical scalability; can be optimized with indexing, caching, and connection pooling.
+| Easy to learn and widely documented; strong ecosystem and community support.
+| Mature security features, regular updates, role-based permissions.
+| Reliable due to maturity, long-term support, widely used in production.
+
+| PostgreSQL
+| SQL / Relational
+| Excellent vertical and moderate horizontal scalability; handles large datasets efficiently; strong indexing and query optimization support.
+| Developer-friendly, comprehensive documentation, supports advanced SQL features.
+| Robust security with authentication, TLS, encryption at rest, and granular access control.
+| Highly reliable; ACID-compliant, mature community, proven data integrity; recommended as the best choice for complex, mission-critical workloads.
+
+| MongoDB
+| NoSQL / Document
+| High horizontal scalability through sharding; performance can degrade with poor shard key selection.
+| Easy to use for simple queries and document-based models; limited support for complex transactions.
+| Supports TLS, role-based access control, auditing; security depends on proper configuration.
+| Reliable for general workloads, but eventual consistency and occasional stale reads can occur; newer and less proven than SQL DBMS.
+
+| Redis
+| NoSQL / Key-Value, in-memory
+| Very high performance and low latency; scales horizontally via Redis Cluster, but constrained by memory limits.
+| Simple and developer-friendly, familiar data structures.
+| ACLs, authentication, TLS; generally secure, but depends on configuration.
+| Fast and performant, but risk of data loss on crashes; in-memory design limits persistence guarantees.
+
+|===
+
+
+== Chapter 4. Practical Implementation
+
+=== 4.1 Final Architecture Decision
+The final architecture that was chosen for this project was PostgreSQL. As already presented, it is a reliable option with an active and professional user ecosystem. This provides further reliability and ease of use, as well as an additional layer of security when handling user data, along with its built-in security features. There are comprehensive options for scaling.
+
+=== 4.2 Database Schema Design
+The following database model was implemented in the HomeSafe project.
+
+image::../themes/pdf/fig6_puml.png[width=500, height=600]
+
+=== 4.3 Benchmark Testing & Growth Simulation
+
+==== 4.3.1 B-Trees
+In order to understand and interpret the scaling of the database, a basic understanding of B-trees is relevant.
+B-trees are self-balancing search tree data structures. They maintain sorted data and allow logarithmic time complexities (_O(logn)_) for search, insertion and deletion. They minimize disk I/O by storing multiple keys in a single node. They ensure that all leaf nodes are at the same depth. All of these factors contribute to B-trees significantly improving database performance, making them the standard for indexing large datasets. <<_29, [29]>>
+
+==== 4.3.2 Applied Benchmark Evaluation
+===== Parameters
+The parameters that will be analyzed are produced by pgbench. Each parameter describes an aspect of workload configuration or system performance.
+
+* Scaling factor - the scaling factor determines the size of the standard pgbench dataset. The smallest predefined dataset size is 1. In this project, since a custom schema and dataset were used instead of the default pgbench schema, the scaling factor does not directly influence table size. It remains at 1 because the workload logic is manually defined through the benchmark script.
+* Query mode - A prepared query mode indicates that prepared statements were used. These statements are parsed and planned once, reused multiple times during execution, and overall improve performance while reflecting real-world scenarios.
+* Number of clients - The number of clients indicates the number of concurrent client connections simulated during the benchmark. This simulates, in the context of HomeSafe, concurrent mobile users interacting with the system. Higher values increase contention and stress test locking, indexing, and I/O.
+* Number of threads - The number of threads refers to the number of concurrent worker threads that pgbench uses to simulate the clients. This is ideally aligned with available PCU cores.
+* Maximum number of tries - The maximum number of tries being one indicates that a failed transaction is not retried. If a transaction fails, it is counted as failed immediately.
+* Duration - The duration indicates how long a benchmark runs. A duration of 120 seconds was chosen to allow performance stabilization and to produce statistically meaningful average results.
+* Number of transactions actually processed - This indicated the total number of completed transactions during the test period. A transaction is one execution of the benchmark script logic. This metric equals the total workload throughput.
+* Number of failed transactions - This shows how many transactions failed in total.
+* Latency average - Latency represents the average time required to complete a single transaction, measured in milliseconds. Lower latency is preferred as it indicates better responsiveness.
+* Initial connection time - This measures the time required to establish the initial database connections before transactions begin.
+* TPS - Transactions per second are measured by dividing the total transactions by the benchmark duration while excluding initial connection time. TPS is the primary indicator of throughput, and should be as high as possible.
+
+===== Benchmarks
+I used pgbench in order to test separate benchmarks.
+
+The code for generating and populating the database is:
+[source, postgresql]
+----
+CREATE SEQUENCE IF NOT EXISTS hibernate_sequence START WITH 1 INCREMENT BY 1;
+-- Users table
+CREATE TABLE IF NOT EXISTS users (
+                                     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    auth0_id VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    name_encrypted TEXT,
+    phone_encrypted TEXT,
+    emergency_contact_encrypted TEXT,
+    home_latitude DOUBLE PRECISION,
+    home_longitude DOUBLE PRECISION,
+    location_sharing_consent BOOLEAN NOT NULL DEFAULT false,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    gdpr_consent_date TIMESTAMP,
+    last_login TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+ALTER TABLE users ADD COLUMN numeric_id BIGSERIAL;
+CREATE INDEX idx_users_numeric_id ON users(numeric_id);
+CREATE INDEX idx_auth0_id ON users(auth0_id);
+CREATE INDEX idx_email ON users(email);
+
+-- Friends table
+CREATE TABLE IF NOT EXISTS friends (
+                                       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    friend_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    accepted_at TIMESTAMP,
+    CONSTRAINT unique_friendship UNIQUE(user_id, friend_id),
+    CONSTRAINT no_self_friend CHECK (user_id != friend_id)
+    );
+
+CREATE INDEX idx_friends_user_id ON friends(user_id);
+CREATE INDEX idx_friends_friend_id ON friends(friend_id);
+CREATE INDEX idx_friends_status ON friends(status);
+
+-- Location shares table
+CREATE TABLE IF NOT EXISTS location_shares (
+                                               id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    friend_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    start_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    end_time TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX idx_location_shares_user_id ON location_shares(user_id);
+CREATE INDEX idx_location_shares_friend_id ON location_shares(friend_id);
+CREATE INDEX idx_location_shares_is_active ON location_shares(is_active);
+
+-- Location history table
+CREATE TABLE IF NOT EXISTS location_history (
+                                                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    accuracy DOUBLE PRECISION,
+    heading DOUBLE PRECISION,
+    timestamp TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    delete_at TIMESTAMP NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX idx_location_history_user_id ON location_history(user_id);
+CREATE INDEX idx_location_history_delete_at ON location_history(delete_at);
+CREATE INDEX idx_location_history_user_timestamp ON location_history(user_id, timestamp DESC);
+
+-- Grant permissions to user
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO homesafe_user;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO homesafe_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO homesafe_user;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO homesafe_user;
+
+-- Populating
+INSERT INTO users (auth0_id, email, location_sharing_consent, is_active, home_latitude, home_longitude)
+SELECT
+    'auth0|' || gs,
+    'user' || gs || '@test.com',
+    (random() < 0.8),
+    true,
+    40.0 + random(),     -- example city box
+    -73.0 + random()
+FROM generate_series(1, 10000) gs;
+
+INSERT INTO friends (user_id, friend_id, status, accepted_at)
+SELECT
+    u1.id,
+    u2.id,
+    CASE WHEN random() < 0.9 THEN 'ACCEPTED' ELSE 'PENDING' END,
+    CASE WHEN random() < 0.9 THEN NOW() - (random() * interval '30 days') END
+FROM users u1
+JOIN users u2
+    ON u2.numeric_id BETWEEN u1.numeric_id + 1 AND u1.numeric_id + 6
+WHERE random() < 0.6;
+INSERT INTO location_shares (user_id, friend_id, is_active, end_time)
+SELECT
+    user_id,
+    friend_id,
+    (random() < 0.7),
+    CASE WHEN random() < 0.3 THEN NOW() - interval '1 day' END
+FROM friends
+WHERE status = 'ACCEPTED'
+AND random() < 0.3;
+INSERT INTO location_history
+(user_id, latitude, longitude, accuracy, heading, timestamp, delete_at)
+SELECT
+    u.id,
+    u.home_latitude + (random() - 0.5) * 0.01,
+    u.home_longitude + (random() - 0.5) * 0.01,
+    5 + random() * 20,
+    random() * 360,
+    NOW() - (gs * interval '5 minutes'),
+    NOW() + interval '7 days'
+FROM users u
+CROSS JOIN generate_series(1, 10) gs;
+
+CREATE INDEX idx_location_shares_active_user
+ON location_shares(user_id)
+WHERE is_active = true;
+
+CREATE INDEX idx_location_history_covering
+ON location_history(user_id, timestamp DESC)
+INCLUDE (latitude, longitude);
+
+CREATE OR REPLACE FUNCTION random_user_uuid()
+RETURNS uuid AS $$
+    SELECT id
+    FROM users
+    OFFSET floor(random() * (SELECT count(*) FROM users))::int
+    LIMIT 1 $$ LANGUAGE sql STABLE;
+----
+
+The benchmarks that were run were:
+
+* Inserting a location (write benchmark)
+* Getting an active friend location
+* Getting the user's history
+* Reading friend list
+* Reading active shares
+* Deleting outdated history of location
+
+The following code is run during every benchmark test.
+
+[source, postgresql]
+----
+\set action random(1,100)
+
+-- 55% INSERT LOCATION
+\if :action <= 55
+INSERT INTO location_history
+(user_id, latitude, longitude, accuracy, heading, timestamp, delete_at)
+VALUES (
+    random_user_uuid(),
+    40 + random(),
+    -73 + random(),
+    10,
+    random() * 360,
+    NOW(),
+    NOW() + interval '7 days'
+);
+\endif
+-- 20% FRIEND LATEST LOCATIONS
+\if :action > 55 and :action <= 75
+SELECT DISTINCT ON (lh.user_id)
+    lh.user_id, lh.latitude, lh.longitude, lh.timestamp
+FROM friends f
+JOIN location_history lh ON lh.user_id = f.friend_id
+WHERE f.user_id = random_user_uuid()
+AND f.status = 'ACCEPTED'
+ORDER BY lh.user_id, lh.timestamp DESC;
+\endif
+-- 10% OWN HISTORY
+\if :action > 75 and :action <= 85
+SELECT *
+FROM location_history
+WHERE user_id = random_user_uuid()
+ORDER BY timestamp DESC
+LIMIT 50;
+\endif
+-- 7% FRIEND LIST
+\if :action > 85 and :action <= 92
+SELECT u.id, u.email
+FROM friends f
+JOIN users u ON u.id = f.friend_id
+WHERE f.user_id = random_user_uuid()
+AND f.status = 'ACCEPTED';
+\endif
+-- 5% CHECK ACTIVE SHARES
+\if :action > 92 and :action <= 97
+SELECT *
+FROM location_shares
+WHERE user_id = random_user_uuid()
+AND is_active = true;
+\endif
+-- 3% DELETE EXPIRED
+\if :action > 97
+DELETE FROM location_history
+WHERE id IN (
+    SELECT id
+    FROM location_history
+    WHERE delete_at < NOW()
+    LIMIT 1000
+);
+\endif
+----
+
+The growth simulation is based on the growth of the user table. The sizes of all other tables get calculated based on this, as follows:
+
+[cols="1,1"]
+|===
+| *Table*
+| *No. of rows*
+
+| Users
+| n
+
+| Friends
+|
+- Each user can have up to 6 friends +
+- Randomness applied - realistically, some users have 0-3 friends and some have 5-6 friends. +
+- friends = n * 6 * 0.6
+
+| Location Shares
+|
+- 90% of friends are ACCEPTED
+- Takes 30% of ACCEPTED Friends
+- shares = friends * 0.9 * 0.3
+
+| Location History
+|
+- 30 entries per user
+- history = n * 10
+
+|===
+
+====== 10,000 users
+
+[cols="1,1"]
+|===
+| *Table*
+| *No. of rows*
+
+| Users
+| 10,000
+
+| Friends
+| ~35,000-40,000
+
+| Location shares
+| ~9,000-10,000
+
+| Location history
+| ~100,000
+|===
+
+The results after running the benchmark are:
+----
+scaling factor: 1
+query mode: prepared
+number of clients: 50
+number of threads: 8
+maximum number of tries: 1
+duration: 120 s
+number of transactions actually processed: 124309
+number of failed transactions: 0 (0.000%)
+latency average = 48.195 ms
+initial connection time = 212.643 ms
+tps = 1037.456028 (without initial connection time)
+----
+
+*Analysis* +
+The working set, on this scale, is smaller than available RAM. Most page accesses are buffer hits, not disk reads. WAL writes are sequential and manageable at this scale. The system is CPU-bound instead of I/O-bound, limited by query execution and context switching.
+
+====== 100,000 Users
+
+[cols="1,1"]
+|===
+| *Table*
+| *No. of rows*
+
+| Users
+| 100,000
+
+| Friends
+| 360,000
+
+| Location shares
+| 97,200
+
+| Location history
+| 1,000,000
+|===
+
+The results after running the benchmark are:
+----
+scaling factor: 1
+query mode: prepared
+number of clients: 50
+number of threads: 8
+maximum number of tries: 1
+duration: 120 s
+number of transactions actually processed: 161257
+number of failed transactions: 0 (0.000%)
+latency average = 37.156 ms
+initial connection time = 207.859 ms
+tps = 1345.675009 (without initial connection time)
+----
+
+*Analysis* +
+Performance of the system improved despite 10 times more users. The larger dataset improved index selectivity - the user_id column became more selective, with B-tree branching improving efficiency. Planner cost estimations became accurate. A better concurrency distribution is also present, with inserts being more evenly distributed as well as index page hotspots and lock contention being reduced. The active working set still fits in the RAM. From everything that was tested, this is the system's optimal scaling zone. Overall, the system demonstrates efficient vertical scaling up to 100,000 users, maintaining low-latency behavior under mixed read/write workload.
+
+====== One Million Users
+
+[cols="1,1"]
+|===
+| *Table*
+| *No. of rows*
+
+| Users
+| 1,000,000
+
+| Friends
+| 3,600,000
+
+| Location shares
+| 972,000
+
+| Location history
+| 10,000,000
+|===
+
+The results after running the benchmark are:
+----
+scaling factor: 1
+query mode: prepared
+number of clients: 50
+number of threads: 8
+maximum number of tries: 1
+duration: 120 s
+number of transactions actually processed: 5411
+number of failed transactions: 0 (0.000%)
+latency average = 1109.301 ms
+initial connection time = 230.918 ms
+tps = 45.073413 (without initial connection time)
+----
+
+*Analysis* +
+At 1,000,000 users, the performance collapses. The performance degradation shows the memory-bound constraints on the device that benchmarks were ran on. The earlier runs were CPU-limited, while the system at this scale is waiting for I/O-bound disk scale, which results in a dramatic increase in latency.
+Sharding would improve these issues.
+
+=== 4.3 Planned Sharding Strategy
+Horizontal partitioning (sharding by user_id) would distribute the working set across multiple nodes, reducing index depth and improving cache locality, thereby restoring near-linear scalability.
+
+==== 4.3.1 Shard Key Selection
+The system is highly user-centric. Therefore, it makes sense that hash(user_id) would be the chosen shard key. This results in an even distribution, minimal cross-shard joins and a reduction of shard hotspots.
+
+==== 4.3.2 Theoretical Shard Layout
+The formula for the total theoretical throughput:
+----
+Total TPS ≈ TPS_per_shard × number_of_shards
+----
+Performance per shard should approximate ~1000 TPS.
+
+==== 4.3.3 Effect on Index Depth
+Sharding, overall, will reduce index size per node, B-tree height and random disk reads. This results in improving cache locality, memory-resident behaviour and reduced latency.
+
+==== 4.3.4 Cross-Shard Queries
+Friend queries may involve User objects on different shards. Possible solutions would be:
+
+* Application-level fan-out
+* Distributed PostgreSQL (e.g. Citus)
+* Storing friendship edges on both shards
+
+The trade-off would be increased complexity and an increased coordination cost, but the database would still be scalable.
+
+=== 4.4 Backup Strategy
+The backup strategy for HomeSafe is designed to ensure high availability, fast disaster recovery, and compliance with the system’s data retention policy. Since the application processes continuous write operations (location updates), the backup architecture must support minimal data loss while avoiding unnecessary storage of expired personal data.
+
+The chosen solution is based on the native backup mechanisms of PostgreSQL, combining continuous Write-Ahead Log (WAL) archiving with daily base backups and a rolling 30-day retention window.
+
+==== 4.4.1 Continuous Archiving and Point-in-Time Recovery
+PostgreSQL maintains a write ahead log (WAL). This log showcases all changes made to the database's data files and exists for crash scenarios. This way, the database can be restored in the case of the crash by "replaying" the logs. According to the official PostgreSQL documentation, this approach has significant benefits:
+
+* Any inconsistency in the backup will be corrected by log replay, making a perfectly consistent file system backup non-essential.
+* Continuous backup can be achieved by continuing to backup WAL files. This lowers the load of backing up the entire database frequently.
+* Replaying the WAL entry to any specific point makes it possible for the user to get a consistent snapshot of the database at the time, making this technique support point-in-time recovery.
+* A warm standby system is possible - a second machine storing the WAL files will have a current or nearly-current copy of the database at any point. <<_30, [30]>>
+
+To comply with HomeSafe’s data retention policy, WAL archives are retained for a maximum of 30 days, matching the retention period of location and session data. Older WAL segments are automatically removed to prevent reconstruction of expired personal data.
+
+==== 4.4.2 Base Backup
+Pg_basebackup is a utility for creating PostgreSQL backups. It is generally faster than pg_dumpall, especially when handling larger databases. Pg_basebackup is used to create backups of the entire database cluster. +
+Employing a strategy of daily base backups and retaining a maximum of 30 backups at a time would ensure a secure and fast restore and disaster recovery option while complying with HomeSafe's automatic deletion policy.
+
+==== 4.4.3 Encrypted Off-Site Storage
+Technical measures including encryption are necessary for personal data to be stored securely.
+Backup files (base backups and WAL archives) are:
+
+* Encrypted at rest with strong symmetric encryption (e.g., AES-256).
+* Transmitted over secure channels (TLS) to prevent interception.
+* Stored in geographically separate infrastructure from the primary database server.
+* Protected by strict access control policies and least-privilege principles.
+
+Encryption keys are managed separately from backup storage and rotated periodically. Access to backup storage is restricted to authorized administrative roles only, and all access events are logged for auditing purposes.
+
+=== 4.5 Data Lifecycle Management
+
+Data Lifecycle Management (DLM) explains how data is stored and processed during its lifecycle on a file level - from creation to its destruction.<<_31,[31]>>
+
+image::../themes/pdf/fig7_datalifecycle.png[width=600, height=400]
+https://www.linkedin.com/pulse/data-lifecycle-management-muhammad-salahuddin-irbfe/[Figure 6. Source: "Data Lifecycle Management" by M. Salahuddin on 06.11.2023, last accessed 27.03.2026]
+
+==== 4.5.1 Approach in Project
+
+===== Data Creation
+As this project deals with M2M data, accurate and efficient data collection is vital. Data is generated through user input, mobile device sensors and system-generated logs.
+
+===== Data Usage
+The privacy policy of the project outlines the types of data used as well as third parties that might get the user's data with the specific legal bases of processing for the usage. The data that is processed when using the application is as follows:
+
+* Account Data: Name, email address, phone number and password (required for registration).
+* Emergency Contacts: Details of trusted persons the user nominates to be notified in emergencies.
+* Saved Addresses: Optional addresses to enhance routing efficiency.
+* User Feedback and Reports: Messages, reports of unsafe areas, or flagged incidents.
+* Usage Logs: Session activity, safety feature usage (e.g., siren, panic button), and error data.
+* Device Information: Device model, operating system, app version, mobile network information.
+* Location Data: Real-time GPS and network-based location for safety routing, emergency alerts, and session tracking.
+* App Identifiers and Similar Technologies: The App uses device identifiers, local storage, and SDK-based analytics technologies to support authentication, improve performance, and provide essential features. We do not use traditional web cookies inside the mobile application.
+
+The third parties that the application shares data with are:
+
+* Auth0 – for secure authentication and account management.
+* Google Maps API – to provide map displays, routing, and real-time location services.
+* Push Notification Providers – to deliver critical alerts, safety notifications, and system updates.
+* Analytics Providers – to analyze app performance and improve user
+experience.
+* Emergency Services or Trusted Contacts – only when explicitly triggered by the user or in case of imminent risk to safety.
+
+===== Data Storage
+As this thesis demonstrated, the HomeSafe project implements a relational PostgreSQL database for safe storage. Due to compliance with the Regulation (EU) 2016/679 of the European Parliament and of the Council, it is stored on safe EU-based servers and encrypted.
+
+===== Data Archiving
+After 30 days, data is either archived or deleted depending on its relevance. Archived data is retained for a longer defined period before final deletion or anonymization. For example:
+
+* Usage logs and session data are archived after 30 days
+* Incident-related data may be retained longer depending on legal obligations
+
+Only data that is no longer actively required for real-time application functionality but may still be needed for legal, auditing, or analytical purposes is archived. This includes:
+
+* Historical usage logs
+* Anonymized location data
+* Safety incident reports
+* System performance and error logs
+
+===== Data Purging
+The data retention periods are further defined in the privacy policy of the application. The personal data is retained only as long as necessary. Account data is retained as long as the user's account remains active. Location and session data are automatically deleted after 30 days unless needed for safety incident reporting or for legal interest.
+After the retention period, data will be securely deleted or anonymized. The development team implemented a combination of technical and organizational measures to protect the data, including encryption in transit (HTTPS/TLS), encryption at rest, role-based access controls, multifactor authentication for administrative
+systems and regular security reviews and vulnerability assessments.
+
+== Conclusion
+By theoretically examining multiple DBMS and evaluating them through practical benchmarking on a production level, the research of this thesis has shown that PostgreSQL is the best option for a secure, reliable, consistent and scalable mobile application operating with machine to machine real-time data. While the system reaches its limits on a larger scale of users, horizontal scaling, particularly through sharding, would be efficient options for the DBMS implementation. Indexing and efficient database modelling are also important contributing factors for maximising efficiency, while frequent backups and secure data storage using encryption ensure fault isolation and global recoverability.
+
+
+[bibliography]
+== Bibliography
+
+
+- [[[_1]]] Giesecke & Devrient: Machine-to-Machine (M2M) Communication Challenges Established (U)SIM Card Technology (2006), last accessed 22.02.2026 online: https://web.archive.org/web/20080107015708/http://www.gi-de.com/portal/page?_pageid=44,139339&_dad=portal&_schema=PORTAL
+
+- [[[_2]]] Entro Security: What is Machine-to-Machine (M2M) Communication, last accessed 22.02.2026 online: https://entro.security/glossary/machine-to-machine-m2m-communication/
+
+- [[[_3]]] IBM: What is a database management system? (2010), last accessed 22.02.2026 online: https://www.ibm.com/docs/en/zos-basic-skills?topic=zos-what-is-database-management-system
+
+- [[[_4]]] T. Haigh for ACM: How Charles Bachman Invented the DBMS, a Foundation of Our Digital World (01.07.2016), last accessed 22.02.2026 online: https://cacm.acm.org/opinion/how-charles-bachman-invented-the-dbms-a-foundation-of-our-digital-world/
+
+- [[[_5]]] K.D. Foote for Dataversity: A Brief History of Database Management (25.10.2021), last accessed 22.02.2026 online: https://www.dataversity.net/articles/brief-history-database-management/
+
+- [[[_6]]] Wikipedia: PostgreSQL (last edited 20.02.2026), last accessed 22.02.2026 online: https://en.wikipedia.org/w/index.php?title=PostgreSQL&oldid=1339358407
+
+- [[[_7]]] Wikipedia: NoSQL (last edited 29.01.2026), last accessed 22.02.2026 online: https://en.wikipedia.org/w/index.php?title=NoSQL&oldid=1335450843
+
+- [[[_8]]] AWS: What’s the Difference Between an ACID and a BASE Database?, last accessed 22.02.2026 online: https://aws.amazon.com/compare/the-difference-between-acid-and-base-database/
+
+- [[[_9]]] D. Patel for Medium: ACID vs CAP Theorem Consistency (17.09.2025), last accessed 22.02.2026 online: https://medium.com/@dhrumitpatell/consistency-in-acid-vs-cap-theorem-9b250e30862b
+
+- [[[_10]]] A. Pomponio for OpenLogic: MySQL Overview: Key Features, Benefits, and Use Cases (14.10.2021), last accessed 22.02.2026 online: https://www.openlogic.com/blog/mysql-overview
+
+- [[[_11]]] GeeksForGeeks: MySQL Database Scalability (last updated 23.07.2025), last accessed 22.02.2026 online: https://www.geeksforgeeks.org/mysql/mysql-database-scalability/
+
+- [[[_12]]] OpenLogic: What Is PostgreSQL? (12.08.2021), last accessed 22.02.2026 online: https://www.openlogic.com/blog/what-is-postgresql#postgresql-features-01
+
+- [[[_13]]] A. Rosenblum for Keyhole Software: Best Practices for Scaling a PostgreSQL Database (04.03.2025), last accessed 22.02.2026 using the link: https://keyholesoftware.com/best-practices-for-scaling-a-postgresql-database/
+
+- [[[_14]]] VirtualDBA: PostgreSQL: The World’s Most Advanced Open-Source Database (14.06.2023), last accessed 22.02.2026 online: https://virtual-dba.com/blog/postgresql-the-worlds-most-advanced-open-source-database/
+
+- [[[_15]]] TigerData: Guide to PostgreSQL Security (04.04.2024), last accessed 22.02.2026 online: https://www.tigerdata.com/learn/guide-to-postgresql-security
+
+- [[[_16]]] PostgreSQL Documentation: Reliability and the Write-Ahead Log, last accessed 22.02.2026 online: https://www.postgresql.org/docs/current/wal-reliability.html
+
+- [[[_17]]] Hacker Forum discussion (18.10.2024), last accessed 22.02.2026 online: https://news.ycombinator.com/item?id=41875126
+
+- [[[_18]]] S. Kempe for Dataversity: What Is BASE? (17.03.2021), last accessed 22.02.2026 online: https://www.dataversity.net/data-concepts/what-is-base/
+
+- [[[_19]]] IBM: What is MongoDB?, last accessed 22.02.2026 online: https://www.ibm.com/think/topics/mongodb
+
+- [[[_20]]] GeeksForGeeks: MongoDB Advantages & Disadvantages (last updated 23.07.2025), last accessed 22.02.2026 online: https://www.geeksforgeeks.org/mongodb/mongodb-advantages-disadvantages/
+
+- [[[_21]]] A. Starks for Medium: MongoDB is the best database for beginner developers (09.07.2024), last accessed 22.02.2026 online: https://medium.com/@austin-starks/mongodb-is-the-best-database-for-beginner-developers-bbfcecfaf332
+
+- [[[_22]]] L. Jovetic for Studio3T: 7 ways to ensure data security with MongoDB as your organization grows (24.04.2025), last accessed 22.02.2026 online: https://studio3t.com/blog/7-ways-to-ensure-data-security-with-mongodb-as-your-organization-grows/
+
+- [[[_23]]] Aphyr: Jepsen: MongoDB stale reads (20.04.2015), last accessed 22.02.2026 online: https://aphyr.com/posts/322-call-me-maybe-mongodb-stale-reads
+
+- [[[_24]]] Lenovo: Glossary: Redis, last accessed 22.02.2026 online: https://www.lenovo.com/us/en/glossary/redis/
+
+- [[[_25]]] C. Powick for Instaclustr: How to Scale With Redis (28.11.2023), last accessed 22.02.2026 online: https://www.instaclustr.com/blog/how-to-scale-with-redis/
+
+- [[[_26]]] Noah Stride: Redis is great (01.09.2020), last accessed 22.02.2026 online: https://noahstride.co.uk/blog/2020-09-01-redis-is-great/
+
+- [[[_27]]] O. Yildiz for Medium: Mastering Redis Security: An In-Depth Guide to Best Practices and Configuration Strategies (05.12.2024), last accessed 22.02.2026 online: medium.com/@okanyildiz1994/mastering-redis-security-an-in-depth-guide-to-best-practices-and-configuration-strategies-df12271062be
+
+- [[[_28]]] Tencent Cloud: What are some common Redis issues? (17.04.2025), last accessed 22.02.2026 online: https://www.tencentcloud.com/techpedia/105740
+
+- [[[_29]]] M. Kuźmik for Allegro: How does B-tree make your queries fast? (27.11.2023), last accessed 01.03.2026 online: https://blog.allegro.tech/2023/11/how-does-btree-make-your-queries-fast.html
+
+- [[[_30]]] PostgreSQL 18: Continuous Archiving and Point-in-Time Recovery (PITR), last accessed 02.03.2026 online: https://www.postgresql.org/docs/current/continuous-archiving.html
+
+- [[[_31]]] C. Destiny Young for LinkedIn: Data Lifecycle Management: Explained (19.07.2024), last accessed 27.03.2026 online: https://www.linkedin.com/pulse/data-lifecycle-management-explained-destiny-young-g1qbf/
+
+<<<
+
