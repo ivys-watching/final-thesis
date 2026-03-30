@@ -7,10 +7,11 @@
 :pdf-page-size: a4
 :pdf-theme: spengergasse
 :toc-title: Table of Contents
-:toclevels: 3
+:toclevels: 1
 :blankline: pass:[ +]
 :lang: DE
 :hyphens:
+:toc-placement!:
 
 // Lädt das PDF, das aus der Wordvorlage erzeugt wurde, zu Beginn der Arbeit.
 image::diplomarbeit_intro.pdf[pages=1..99]
@@ -24,6 +25,9 @@ toc::[]
 // include::diplomarbeit_themenstellung.adoc[]
 
 include::chapters/ivona/ivona-thesis.adoc[]
+
+:imagesdir: chapters/uros/images
+include::chapters/uros/SJ2526-5EHIF-Cvetkovic-Diplomathesis.adoc[]
 
 // include::diplomarbeit_themenstellung_nachname2.adoc[]
 
