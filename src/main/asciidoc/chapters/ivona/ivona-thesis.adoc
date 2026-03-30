@@ -1,5 +1,4 @@
-= Database Architecture Strategies Focused on Storing Machine to Machine Data
-Ivona Riszteszki <RIS210573@spengergasse.at>
+= 1 Topic "Database Architecture Strategies Focused on Storing Machine to Machine Data" Ivona Riszteszki
 
 
 == Abstract
@@ -29,19 +28,19 @@ The application that will be developed in the scope of this thesis work is HomeS
 
 This thesis aims to compare different database management systems based on these criteria. I will consider both relational (SQL) and non-relational (NoSQL) databases.
 
-== Chapter 1. Characteristics of Machine-to-Machine Data
+== 1.1 Characteristics of Machine-to-Machine Data
 
-=== 1.1 What is Machine-to-Machine Communication?
+=== 1.1.1 What is Machine-to-Machine Communication?
 
-==== 1.1.1 Definition
+==== 1.1.1.1 Definition
 
 Machine-to-machine (M2M) is defined as direct communication between two devices without human intervention, either through wires or wireless. <<_1, [1]>> M2M systems are especially important for real-time data provision as well as increased efficiency when handling data. <<_2, [2]>>
 
-==== 1.1.2 Differences to Human-Generated Data
+==== 1.1.1.2 Differences to Human-Generated Data
 
 Human-generated data is made by humans, such as the contents of an email, a written document, images, audio files, etc. Conversely, machine-to-machine data is collected automatically through sensors, devices, or systems with no human intervention. This includes GPS tracking, a vending machine tracking its own stock, ATMs tracking the amount of banknotes, etc. M2M data is typically structured, high-volume and automated, while human-generated data is unstructured with a lower volume and slower.
 
-==== 1.1.3 Implementation in Mobile Applications
+==== 1.1.1.3 Implementation in Mobile Applications
 
 M2M communication is typically implemented in mobile devices using cellular networks, GPS, and Wi-Fi.
 For geolocation-based mobile applications, the most important features of M2M data would be:
@@ -51,17 +50,17 @@ For geolocation-based mobile applications, the most important features of M2M da
 * Potential burst traffic in emergencies
 * Sensitive personal data security
 
-== Chapter 2. Theoretical Foundations
+== 1.2 Theoretical Foundations
 
-=== 2.1 What is a Database Management System?
+=== 1.2.1 What is a Database Management System?
 
 A database management system (‘DBMS’) is a connection point between the user and the database, allowing the user to access, change and organize the database and the data if needed. <<_3, [3]>> Charles W. Bachmann created the first database management tool, IDS, which was tested and running by 1963. <<_4, [4]>> This set off an increased interest in database management as well as the development of new approached, most notably MySQL in 1995 <<_5, [5]>>, PostgreSQL in 1996 <<_6, [6]>> and NoSQL (“not only SQL”) in the 2000’s. <<_7, [7]>>
 
-=== 2.2 Difference between SQL and NoSQL Databases
+=== 1.2.2 Difference between SQL and NoSQL Databases
 
 The decision to use relational or non-relational databases always depends on the project. There are some key features and differences that need to be considered before using one or the other.
 
-==== 2.2.1 SQL Databases
+==== 1.2.2.1 SQL Databases
 
 All SQL databases are relational. SQL stands for “Structured Query Language”. Data is stored in rows and tables that are related to each other in various ways by having mapped out relationships. Typical code for generating an SQL table might look like this:
 
@@ -150,7 +149,7 @@ Durability ensures that the database keeps all data that has already been saved,
 The most popular DBMS for SQL are MySQL and PostgreSQL. Though they are both relational DBMS, they contain different features and advantages to their use.
 
 
-==== 2.2.2 NoSQL Databases
+==== 1.2.2.2 NoSQL Databases
 
 The following would be a typical NoSQL document structure creation. As is visible on the following graphic, there is not a set column structure that the developer has to follow when inserting data. Instead, data is inserted on creation of the row and assorted into the columns that are named.
 
@@ -204,18 +203,18 @@ The state of the data changes without application interaction, which is connecte
 
 The system will eventually be consistent after the application input or data change, but the consistency is not guaranteed immediately or at a transaction level. <<_18, [18]>>
 
-=== 2.3 Usage and Popularity of Databases
+=== 1.2.3 Usage and Popularity of Databases
 
 The following StackOverflow graphic from 2025 details DBMS usage by professional developers in the industry. Overall, relational databases like PostgreSQL and MySQL still dominate the industry. However, in 5th place and with around 30% of users, noSQL DBMS like Redis are also becoming a popular option with MongoDB following close behind.
 
 .https://survey.stackoverflow.co/2025/technology#most-popular-technologies-database-prof[Source: Stack Overflow]
 image::../themes/pdf/fig5_SO_survey.png[width=800, height=600]
 
-== Chapter 3. Comparative Evaluation
+== 1.3 Comparative Evaluation
 
-=== 3.1 SQL Databases
+=== 1.3.1 SQL Databases
 
-==== 3.1.1 MySQL
+==== 1.3.1.1 MySQL
 
 MySQL is a database that is considered reliable and well performing with the open source fork MariaDB, a free community edition as well as a paid alternative. It is included in the popular LAMP stack (Linux, Apache, MySQL, Python/Perl/PHP). <<_10, [10]>>
 
@@ -235,7 +234,7 @@ The DBMS is regularly updated and is overall kept secure because of its maturity
 
 MySQL’s main feature remains its maturity – both from a data and a developer perspective, its long-term support makes it a reliable option.
 
-==== 3.1.2 PostgreSQL
+==== 1.3.1.2 PostgreSQL
 
 PostgreSQL is another popular DBMS option with a wide array of open-source database choices available. <<_12, [12]>>
 
@@ -255,9 +254,9 @@ With support for client authentication, access control, TLS and encryption at re
 
 By relying on SQL and having a mature community of developers, PostgreSQL remains a predictable and reliable option. <<_16, [16]>> Some users cite personal experience with the lack of data loss in PostgreSQL when compared to other DMBS. <<_17, [17]>>
 
-=== 3.2 NoSQL Databases
+=== 1.3.2 NoSQL Databases
 
-==== 3.2.1 MongoDB
+==== 1.3.2.1 MongoDB
 
 MongoDB is an open source, nonrelational DBMS. It uses documents and collections of documents as basic units of data. The format it uses is Binary JSON.<<_19, [19]>> MongoDB got released in 2009, making it the newest option for a DBMS in this thesis.
 
@@ -277,7 +276,7 @@ MongoDB has built-in TLS/SSL encryption, role-based access control, auditing fea
 
 While MongoDB has an active community that generally answers queries fast, several issues have been noted in past releases of the DBMS. Stale and wrong reads are noted to be a problem, as some read operations retrieve outdated information. It was first released in 2009, making it a relatively newer option.<<_23, [23]>>
 
-==== 3.2.2 Redis
+==== 1.3.2.2 Redis
 
 Redis (REmote DIctionary Server) is an open-source, in-memory NoSQL key-value DBMS. As it is an in-memory data store, it should offer extremely low latency and high throughput compared to traditional disk-based databases. It is schema-less and optimized for speed.<<_24, [24]>>
 
@@ -297,7 +296,7 @@ Redis has built-in ACLs, authentication TLS support (encryption) and is in “pr
 
 As Redis is designed primarily for speed, there is a risk of data loss. Improper configuration or server crashes can result in losing data that had not yet been written to disk. As an in-memory database, Redis could consume more RAM that possibly available, possibly triggering OOM (Out of Memory) kills, crashing the instance. Scalability and memory limits are of importance when first starting with Redis. <<_28, [28]>>
 
-=== 3.3 Final Comparative Evaluation
+=== 1.3.3 Final Comparative Evaluation
 Following is a table comparing all of the presented options concisely based on the highlighted criteria.
 
 [cols="13%,10%,20%,17%,20%,20%", options="header"]
@@ -335,23 +334,23 @@ Following is a table comparing all of the presented options concisely based on t
 |===
 
 
-== Chapter 4. Practical Implementation
+== 1.4 Practical Implementation
 
-=== 4.1 Final Architecture Decision
+=== 1.4.1 Final Architecture Decision
 The final architecture that was chosen for this project was PostgreSQL. As already presented, it is a reliable option with an active and professional user ecosystem. This provides further reliability and ease of use, as well as an additional layer of security when handling user data, along with its built-in security features. There are comprehensive options for scaling.
 
-=== 4.2 Database Schema Design
+=== 1.4.2 Database Schema Design
 The following database model was implemented in the HomeSafe project.
 
 image::../themes/pdf/fig6_puml.png[width=500, height=600]
 
-=== 4.3 Benchmark Testing & Growth Simulation
+=== 1.4.3 Benchmark Testing & Growth Simulation
 
-==== 4.3.1 B-Trees
+==== 1.4.3.1 B-Trees
 In order to understand and interpret the scaling of the database, a basic understanding of B-trees is relevant.
 B-trees are self-balancing search tree data structures. They maintain sorted data and allow logarithmic time complexities (_O(logn)_) for search, insertion and deletion. They minimize disk I/O by storing multiple keys in a single node. They ensure that all leaf nodes are at the same depth. All of these factors contribute to B-trees significantly improving database performance, making them the standard for indexing large datasets. <<_29, [29]>>
 
-==== 4.3.2 Applied Benchmark Evaluation
+==== 1.4.3.2 Applied Benchmark Evaluation
 ===== Parameters
 The parameters that will be analyzed are produced by pgbench. Each parameter describes an aspect of workload configuration or system performance.
 
@@ -727,23 +726,23 @@ tps = 45.073413 (without initial connection time)
 At 1,000,000 users, the performance collapses. The performance degradation shows the memory-bound constraints on the device that benchmarks were ran on. The earlier runs were CPU-limited, while the system at this scale is waiting for I/O-bound disk scale, which results in a dramatic increase in latency.
 Sharding would improve these issues.
 
-=== 4.3 Planned Sharding Strategy
+=== 1.4.3 Planned Sharding Strategy
 Horizontal partitioning (sharding by user_id) would distribute the working set across multiple nodes, reducing index depth and improving cache locality, thereby restoring near-linear scalability.
 
-==== 4.3.1 Shard Key Selection
+==== 1.4.3.1 Shard Key Selection
 The system is highly user-centric. Therefore, it makes sense that hash(user_id) would be the chosen shard key. This results in an even distribution, minimal cross-shard joins and a reduction of shard hotspots.
 
-==== 4.3.2 Theoretical Shard Layout
+==== 1.4.3.2 Theoretical Shard Layout
 The formula for the total theoretical throughput:
 ----
 Total TPS ≈ TPS_per_shard × number_of_shards
 ----
 Performance per shard should approximate ~1000 TPS.
 
-==== 4.3.3 Effect on Index Depth
+==== 1.4.3.3 Effect on Index Depth
 Sharding, overall, will reduce index size per node, B-tree height and random disk reads. This results in improving cache locality, memory-resident behaviour and reduced latency.
 
-==== 4.3.4 Cross-Shard Queries
+==== 1.4.3.4 Cross-Shard Queries
 Friend queries may involve User objects on different shards. Possible solutions would be:
 
 * Application-level fan-out
@@ -752,12 +751,12 @@ Friend queries may involve User objects on different shards. Possible solutions 
 
 The trade-off would be increased complexity and an increased coordination cost, but the database would still be scalable.
 
-=== 4.4 Backup Strategy
+=== 1.4.4 Backup Strategy
 The backup strategy for HomeSafe is designed to ensure high availability, fast disaster recovery, and compliance with the system’s data retention policy. Since the application processes continuous write operations (location updates), the backup architecture must support minimal data loss while avoiding unnecessary storage of expired personal data.
 
 The chosen solution is based on the native backup mechanisms of PostgreSQL, combining continuous Write-Ahead Log (WAL) archiving with daily base backups and a rolling 30-day retention window.
 
-==== 4.4.1 Continuous Archiving and Point-in-Time Recovery
+==== 1.4.4.1 Continuous Archiving and Point-in-Time Recovery
 PostgreSQL maintains a write ahead log (WAL). This log showcases all changes made to the database's data files and exists for crash scenarios. This way, the database can be restored in the case of the crash by "replaying" the logs. According to the official PostgreSQL documentation, this approach has significant benefits:
 
 * Any inconsistency in the backup will be corrected by log replay, making a perfectly consistent file system backup non-essential.
@@ -767,11 +766,11 @@ PostgreSQL maintains a write ahead log (WAL). This log showcases all changes mad
 
 To comply with HomeSafe’s data retention policy, WAL archives are retained for a maximum of 30 days, matching the retention period of location and session data. Older WAL segments are automatically removed to prevent reconstruction of expired personal data.
 
-==== 4.4.2 Base Backup
+==== 1.4.4.2 Base Backup
 Pg_basebackup is a utility for creating PostgreSQL backups. It is generally faster than pg_dumpall, especially when handling larger databases. Pg_basebackup is used to create backups of the entire database cluster. +
 Employing a strategy of daily base backups and retaining a maximum of 30 backups at a time would ensure a secure and fast restore and disaster recovery option while complying with HomeSafe's automatic deletion policy.
 
-==== 4.4.3 Encrypted Off-Site Storage
+==== 1.4.4.3 Encrypted Off-Site Storage
 Technical measures including encryption are necessary for personal data to be stored securely.
 Backup files (base backups and WAL archives) are:
 
@@ -782,14 +781,14 @@ Backup files (base backups and WAL archives) are:
 
 Encryption keys are managed separately from backup storage and rotated periodically. Access to backup storage is restricted to authorized administrative roles only, and all access events are logged for auditing purposes.
 
-=== 4.5 Data Lifecycle Management
+=== 1.4.5 Data Lifecycle Management
 
 Data Lifecycle Management (DLM) explains how data is stored and processed during its lifecycle on a file level - from creation to its destruction.<<_31,[31]>>
 
 image::../themes/pdf/fig7_datalifecycle.png[width=600, height=400]
 https://www.linkedin.com/pulse/data-lifecycle-management-muhammad-salahuddin-irbfe/[Figure 6. Source: "Data Lifecycle Management" by M. Salahuddin on 06.11.2023, last accessed 27.03.2026]
 
-==== 4.5.1 Approach in Project
+==== 1.4.5.1 Approach in Project
 
 ===== Data Creation
 As this project deals with M2M data, accurate and efficient data collection is vital. Data is generated through user input, mobile device sensors and system-generated logs.
