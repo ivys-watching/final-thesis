@@ -1,0 +1,464 @@
+:toc: macro
+:imagesdir: ../linda/images
+:blank: {empty}
+
+= Mobile Application UI Design for Incident-Based Systems
+Linda Davies, 5EHIF
+
+
+
+<<<
+
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+{blank}
+
+
+
+[.text-center]
+To my mom for always believing in me and paving the way I walk upon today
+[.text-center]
+and
+[.text-center]
+to Lio for being my calm in every storm and my biggest supporter in every small victory
+
+
+toc::[]
+
+
+[.text-center]
+[#abstract]
+==  Abstract
+
+This thesis will explore mobile user interface design for incident-based systems, particularly supporting people in high-risk situations, like personal safety threats. It emphasizes that reliable interfaces are crucial for acting out rapid, error-resistant reactions when users experience high amounts of stress and environmental constraints. The central objective of this work is to establish design and functionality principles that minimize user stress and cognitive load while maximizing clarity, speed and efficiency in emergency interactions at the same time. To achieve this, relevant concepts from human-computer interaction, mobile UI frameworks and safety-critical designs are examined, while also focusing on how front-end technologies, interaction patterns and visual design choices influence the user’s ability to perceive options and act quickly. The thesis contributes a set of guidelines for implementing front-end functionality and design features that ensure incident-based mobile interfaces remain easy to navigate and stay responsive to urgent user needs, thereby strengthening the safety and the reliability of such systems.
+
+
+
+[#abbreviations]
+== Abbreviations
+
+* *UI* User Interface
+* *HCI* Human Computer Interaction
+* *API* Application Programming Interface
+* *MVVM* Model-View-ViewModel
+* *MVI* Model-View-Intent
+* *VoIP* Voice-over-IP
+* *JSON* JavaScript Object Notation
+* *SUS* System Usability Scale
+
+
+<<<
+
+[#introduction]
+== Introduction
+
+Mobile phones have become one of the first tools people reach for when something goes wrong, whether they feel unsafe on the street, need medical help, or must decide quickly how to react to an unfolding incident. Yet many existing apps are still designed for calm, focused use, not for moments when users are afraid, distracted or feel threatened. In real emergencies, people have only a few seconds to understand what is happening on the screen and trigger the right action; any confusing layout, hidden control or slow response can delay help and increase the risk of harm.
+
+Designing mobile user interfaces specifically for incident‑based systems therefore is not just a question of convenience, but a safety requirement: interfaces must guide frightened, overloaded users through critical decisions with as little friction and error potential as possible. At the same time, these apps have to function on everyday smartphones, often with shaky network connections, limited accessibility support and strict privacy expectations, especially when sensitive location or health data is involved. This combination of emotional pressure, technical constraints and ethical responsibility creates a distinctive design problem that is not fully addressed by general mobile UI guidelines.
+
+<<<
+
+[#chapter-1-theoretical-background]
+== Chapter 1. Theoretical Background
+
+In order to design an incident-based application efficiently, a basic understanding of how people interact with their devices in high-risk situations and how stress affects decision‑making and motor control is required. Incident‑based systems at their core are interactive systems that are designed to detect, manage or respond to potential safety threats. They are structured around the lifecycle of an incident, from initial detection through user actions and system responses, so that critical information and controls are available when an emergency occurs.
+
+{blank}
+{blank}
+{blank}
+[#fundamentals-of-hci]
+=== 1.1 Fundamentals of HCI
+
+When looking into HCI, the way users see, interpret and manipulate information provided by interactive systems is at its core. Fundamental HCI principles such as visibility of system status and clear mappings between actions and outcomes can support users with forming accurate mental models and predicting what might happen next. These become especially relevant in time‑critical situations, because users have less capacity to compensate for design flaws through trial and error. Interfaces that violate expectations or behave inconsistently demand additional mental effort, which can slow down decision‑making or lead to incorrect actions. Based on this, HCI emphasises on simplicity, coherence and immediate feedback as central qualities of usable systems, independent of any concrete platform or technology. <<ref1,[1]>>
+
+
+<<<
+
+=== 1.2 User Behaviour under Stress and in Emergencies
+
+In high‑risk and emergency situations, elevated stress levels are to be expected. Stress has a measurable impact on user behaviour and cognitive performance: it can narrow the attention span, reduce working memory capacity and slow down complex reasoning, while at the same time increasing the urgency of making correct decisions. Emergencies often involve additional physical and environmental constraints on top of these cognitive effects. Such conditions reduce input precision and further limit the time available to scan an interface. From a theoretical perspective, any design that aims to support users in emergencies must assume degraded performance and also needs to actively compensate for it. Illustrated in the visual below is how stress and environmental constraints influence user behavior and what exactly the causes are. <<ref2,[2]>>
+
+
+{blank}
+
+{blank}
+
+[#fig-1-model-user-behavior]
+.Model of user behavior in emergencies
+image::image6.png[A diagram of a stress effects AI-generated content may be incorrect.,width=600,height=400]
+
+<<<
+
+[#usability-cognitive-load-and-decision-speed]
+=== 1.3 Usability, Cognitive Load and Decision Speed
+
+Usability is how easily and efficiently people can use a system to reach their goals. In the context of incident‑based systems, this becomes particularly important, because delays or errors might have direct safety implications. Usability in emergencies does not only mean that tasks can eventually be completed, but that they can be completed quickly and with minimal effort. <<ref3,[3]>>
+
+
+Cognitive load describes the required mental effort to process information in an interface. During emergencies, the intrinsic load of the situation is already high, because users have to monitor their surroundings and assess risks at the same time. Reducing cognitive load means structuring information into small bits and guiding users through a sequence of actions, so that as much mental capacity as possible remains available for the emergency. <<ref4,[4]>>
+
+
+Decision speed describes how quickly a person can move from perceiving a situation to initiating an action. In incident‑based systems, decision speed is critical because users only have a few seconds to interpret what the interface is showing and choose a response. Under stress, people rely more on fast, intuitive processes and simple heuristics rather than analytical reasoning; which means that every extra step can measurably slow them down. <<ref5,[5]>>
+
+
+[#fig-2-usability-decision-speed-cognitive-load]
+.Relationship between usability, decision speed and cognitive load
+image::image7.png[width=444,height=239]
+
+<<<
+
+[#safetycritical-and-incidentbased-user-interfaces]
+=== 1.4 Safety‑Critical and Incident‑based User Interfaces
+
+Traditional safety-critical interfaces are commonly used in areas where errors or delays can cause harm; such as medical devices or transport systems. Studies of accidents in environments like these show that a large proportion of incidents can be traced back to problems in human-computer interaction. Incident-based mobile systems share many characteristics with traditional ones, the key difference is that they are typically operated by end users rather than trained professionals.
+
+Most of the time, they are only used occasionally, sometimes for the very first time during an emergency. This increases the need for intuitive layouts, clear mapping between controls and outcomes and immediate confirmation of critical actions. Because incident‑based mobile systems also need to operate on “regular smartphones”, they also must remain usable under intermittent connectivity, varying device orientations or limited attention, without compromising responsiveness.<<ref6,[6]>>
+
+
+<<<
+
+[#chapter-2-mobile-ui-design-for-incident-based-systems]
+== Chapter 2. Mobile UI Design for Incident-Based Systems
+
+Properly designing mobile user interfaces for incident-based systems does not only require an understanding of user behaviour, but also an approach on how specific interface elements, interaction flows and technical constraints should be handled on modern platforms. In high-risk scenarios, seemingly small decisions such as where a button should be placed or how many steps a user should have to complete can influence whether a critical action is executed in time.
+
+[#characteristics-of-mobile-interaction-in-high-risk-situations]
+=== 2.1 Characteristics of Mobile Interaction in High-Risk Situations
+
+On smartphones, incident‑based systems run within tight technical constraints: small touch screens, gesture‑based navigation, varying aspect ratios and system UI elements such as home buttons or camera notches. To avoid conflicts, UI layouts must respect platform “safe areas” so that critical controls are never rendered underneath system “cut-outs”. This is typically achieved using constraint‑based layouts, safe‑area insets or composable layout primitives provided by the chosen framework. Thumb reachability also limits where controls should be placed: As illustrated in Figure 3 below, natural thumb zones in one‑handed use, at least for “regular-sized” thumbs, lie only about 30% of the screen area, with the upper corners falling largely outside the natural zone. <<ref7,[7]>>
+
+
+[#fig-3-thumb-zone]
+.Proportion of the screen in the natural thumb zone. https://philwijs.medium.com/mobile-app-design-keeping-the-thumb-zone-in-mind-c1d4fafcd127[Phil Wijs (Medium&#44; 2020)]
+image::image8.png[Mobile App Design: Keeping the Thumb Zone in Mind ++|++ by Phil Wijs ('Weiss') ++|++ Medium,width=300,height=160]
+
+<<<
+
+Touch input under stress is also less precise, which has direct implications for component sizing and spacing. Platform guidelines usually recommend minimum touch targets that should be treated as hard lower bounds for crucial controls. As shown in Figure 4, error rates for touch interaction rise sharply once targets shrink below roughly 32–44 pixels, with studies indicating about 40% errors for targets around 20 pixels compared to about 3% errors for 44×44 pixel controls. <<ref8,[8]>>
+Hit areas can be implemented larger than the visible control by extending the tappable region in code, making it easier to trigger actions even with shaky hands. Complex, custom gestures are prone to misdetection and should be replaced with simple taps, short swipes or press‑and‑hold gestures handled via standard gesture recognisers.
+
+[#fig-4-touch-error-rates]
+.Estimated touch error rates for different target sizes
+image::image9.png[A graph with blue and white text AI-generated content may be incorrect.,width=400,height=240]
+
+[#visual-hierarchy-and-layout-for-fast-perception]
+=== 2.2 Visual Hierarchy and Layout Consistency
+
+Visual hierarchy is implemented by using containers, typography scales and semantic colour tokens. Most mobile UI frameworks provide stack‑based or constraint‑based layout primitives that can be used to place status elements where desired. Defining standard spacing values and layout grids in the design system ensures consistent grouping and reduces visual noise; and a type scale could be declared once and referenced by UI components, so that status warnings always use bolder styles. Colour palettes should be implemented via semantic tokens instead by simple hex values, which allows the same meanings to be expressed consistently across the app. Contrast checks can be automated in the design pipeline or verified using accessibility tools to ensure text and icons remain readable in light and dark mode. <<ref9,[9]>>
+<<ref10,[10]>>
+
+
+[#design-principles-for-clarity-and-error-prevention]
+=== 2.3 Design Principles for Clarity and Error Prevention
+
+Clarity can be expressed through a consistent component hierarchy and a centralised design system. A dedicated ‘primary action’ button component can be defined in the UI toolkit with fixed properties (colour token, typography style, elevation) and reused wherever a critical action appears, similar to the primary button shown in Figure 5. Secondary and tertiary actions are implemented as separate component types with reduced visual weight, like in the medium‑ and low‑emphasis examples, so the distinction between important and less important controls is enforced in code rather than through ad‑hoc styling. This prevents screens from drifting visually as they evolve and ensures that the most important control remains easy to recognize. <<ref11,[11]>>
+
+
+[#fig-5-button-hierarchy]
+.Example of a button hierarchy. https://medium.com/appledeveloperacademy-ufpe/buttons-in-ui-design-types-and-best-practices-baefce6d5909[Cecilia Moraes (Medium&#44; 2023)]
+image::image10.png[Buttons in UI Design: Types and Best Practices,width=595,height=356]
+
+Error prevention for critical actions is implemented at interaction‑handler level. Instead of binding a critical action directly to a simple tap event, developers can wrap it in a guard such as a swipe‑to‑confirm gesture. Gesture recognisers can be configured with explicit time or distance thresholds so that the action only fires if the user holds for a certain duration or swipes beyond a defined distance.
+[#feedback-and-critical-alerts]
+=== 2.4 Feedback and Critical Alerts
+
+Feedback from an app essentially is a set of cues through which the application communicates with the user. This includes, for example, disabled or enabled buttons, loading indicators, status messages and system‑level notifications that inform the user about updates or resolution of an incident. Rather than triggering such feedback through imperative UI calls, the application should rely on observable state transitions. View models expose structured state objects that encapsulate interface-relevant information, such as button states, and when a user initiates an action, the corresponding state is first set to "loading" and, once the backend responds, transitions to either a "success" or "error" state. UI components are bound to these state fields and automatically re‑render when they change, producing immediate and consistent feedback without manual calls to show or hide elements. +
+
+
+System‑level notifications help communicate further than the in‑app feedback mechanisms by informing users about new events even when the application is not in the foreground. These notifications are implemented using the native platform notification APIs and are organized into channels that reflect different levels of urgency and context. Incident‑related events should be assigned to high‑priority channels so that they can break through Do Not Disturb or appear as critical alerts when allowed; notification payloads should also include concise messages and use actions that deep link into the app. <<ref12,[12]>>
+
+
+<<<
+
+[#accessibility-and-privacyrelevant-considerations]
+=== 2.5 Accessibility and Privacy‑Relevant Considerations
+
+In order to implement accessibility, every interactive element should have a label, role and state so that assistive technologies (such as screen readers) can describe them. This involves setting accessibility identifiers and traits or roles in code and verifying via accessibility inspection tools that the reading order and focus movement make sense for keyboard or switch‑based navigation. Dynamic content such as changing status messages can be announced through live regions or appropriate notifications so users are aware of state changes even if they cannot see them. <<ref13,[13]>>
+
+Privacy concerns intersect with UI design when handling sensitive information. Permission requests for location or notifications should be preceded by in‑app explanations that clearly state why the permission is needed, which reduces the likelihood that users deny them out of confusion. UI components that show sensitive data must respect lock‑screen and screenshot policies; for example, notifications can be configured to hide content on locked devices and could also, to ease access, be equipped with a deep link, and pages displaying critical information can mark their windows as secure to prevent screenshots.
+
+{blank}
+
+[#fig-6-generic-lockscreen-notification]
+.Example of a lock‑screen notification that shows a generic message
+image::image12.png[A screen shot of a cell phone AI-generated content may be incorrect.,width=526,height=695]
+
+<<<
+
+=== 2.6 Stress‑Aware and Biofeedback‑Supported Incident Apps
+Because stress strongly influences attention and decision‑making, some mobile applications take  physiological signals into account to estimate stress levels and adapt their behaviour accordingly. Smartphone‑based biofeedback apps and wearables can measure indicators such as heart rate or breathing patterns and provide users with real‑time feedback to help them regulate their stress response. Studies show that brief biofeedback interventions delivered via mobile devices can reduce physiological markers of stress and improve perceived coping, even after short training periods. <<ref14,[14]>>
+
+
+On a technical level, stress‑aware incident apps could integrate optional connections to wearables or external sensors and compute simple stress indicators locally on the device. When the system detects patterns that suggest high arousal, such as an elevated heart rate during an incident; it could adapt UI behaviour, for example by slowing down the pace of prompts or offering brief grounding techniques once the immediate danger has passed.
+
+
+[#fig-7-apple-watch]
+
+
+.Image of an Apple Watch currently tracking a user's heartbeat. https://support.apple.com/en-us/120277[Apple, 2026]
+
+image::image18.png[Picture showing an apple watch.,width=200,height=695]
+
+<<<
+=== 2.7 Real‑Time Location Sharing and Safety Zones
+
+Real‑time location sharing is essential when it comes to safety-critical applications, so that trusted contacts or responders can see where a user currently is during an emergency. By continuously transmitting GPS positions, the app can guide responders to the correct place, coordinate search efforts and reassure relatives who are following the user’s route. Family‑safety and tracking apps show that users value quick, precise location updates, especially when the person in need cannot talk or describe their surroundings. At the same time, the UI must help users understand who can see their location, for how long and how to stop sharing once the situation is resolved.
+
+From a design perspective, location sharing in emergencies involves more than showing a dot on a map. Interfaces can highlight “safety zones” such as home, school or well‑known meeting points, and display whether the user is currently inside or outside these areas. During active incidents, the map can visualise routes for responders, estimated arrival times and changes in the user’s movement, for example when a person stops unexpectedly or leaves a predefined safe route.
+
+<<<
+
+[#chapter-3-technical-foundations-for-incident-uis]
+== Chapter 3. Technical Foundations For Incident UIs
+
+Incident‑based applications do not only depend on good visual design; they also require a technical foundation that keeps the user interface predictable, responsive and robust across different devices and network conditions. Architectural decisions such as the choice of UI framework, the way state is managed and how offline behaviour is implemented can directly affect how reliably emergency interactions can be executed.
+
+
+[#mobile-ui-frameworks]
+=== 3.1 Mobile UI Frameworks
+
+When developing mobile applications, the choice of the UI framework depends on different factors. Flutter is attractive when identical UIs are needed on both iOS and Android, because its rendering engine keeps most views consistent, though React Native is often chosen by teams with strong JavaScript experience, because it enables web developers to build mobile apps while still using native components. Xamarin might appeal to .NET developers who would want to share models and business logic between backend services and mobile clients, whereas Kotlin Multiplatform might be useful when logic should be shared across platforms, but the UI itself should remain native so that each app can follow platform‑specific conventions.
+<<ref15,[15]>>
+
+
+[#fig-8-mobile-ui-frameworks]
+.Overview of popular mobile UI frameworks. https://www.bairesdev.com/blog/top-mobile-development-frameworks/[Jeff Moore (2026)]
+image::image13.png[7 Best Mobile Development Frameworks Compared (2025),width=600,height=240]
+
+<<<
+
+[#architectural-patterns-and-state-management]
+=== 3.2 Architectural Patterns and State Management
+
+Architectural patterns in the UI layer determine how incident data flows through the application and how screens respond to changes. In the MVVM pattern, the View is responsible only for rendering and forwarding user input. The ViewModel sits between View and Model and exposes observable properties that describe everything the View needs to display and provides functions for user actions. When the user interacts with the View, these interactions are passed to the ViewModel, which updates the Model and then publishes new state back to the View. The Model encapsulates the domain data and is manipulated exclusively through the ViewModel. This separation keeps the View relatively passive, concentrates logic in the ViewModel and makes it easier to test and reuse without relying on concrete UI components.
+
+
+In the MVI pattern, the Model represents the current UI state, the View displays that state to the user, and the Intent captures the user’s actions. The user interacts with the View, which sends user Intents to the system. These Intents are processed to create a new state in the Model, for example by updating data or triggering an operation. The View observes this Model state and re-renders itself whenever a new state is produced. Because all changes flow in a single direction, the UI behaviour remains predictable, and it is easier to trace and test how each user action leads to a state change. In larger incident‑based apps, these patterns are often combined, for a clear separation of concerns with auditable state management. <<ref16,[16]>>
+
+
+{blank}
+
+[#fig-9-architectural-patterns]
+.Architectural patterns. https://medium.com/@mortitech/combining-mvvm-and-mvi-with-kotlin-flows-part1-48f7dd426341[Medium (2023)]
+image::image14.png[Mobile App Architecture Diagram: Layers & Patterns – NIX United,width=550,height=480]
+
+<<<
+
+[#offline-first-architectures-for-incident-apps]
+=== 3.3 Offline-First Architectures for Incident Apps
+
+During an emergency, users cannot rely on stable connectivity, especially when in buildings, rural areas or moving vehicles. An offline‑first approach therefore has to be reflected directly in the UI: screens must clearly indicate whether the app is currently online, which actions are queued and which information may be outdated. Instead of simply blocking interactions when the network is unavailable, interfaces can allow users to capture essential data locally and show that it will be transmitted as soon as a connection is restored. Offline‑first apps ensure that in emergencies, users can still trigger alarms, record details and see critical information immediately, even when the network is overloaded or temporarily unavailable. <<ref17,[17]>>
+
+
+[#fig-10-online-offline-architectures]
+.Comparing online‑first and offline‑first architectures. https://maurobanze.com/hwbp-1-offline-first-android-app-architecture/[Mauro Banze (2020)]
+image::image16.png[A screen shot of a computer screen AI-generated content may be incorrect.,width=601,height=253]
+
+Controls that depend on an active connection, like live location sharing or a two-way chat, should degrade slowly instead of disappearing. Disabled states, inline hints and alternative fallback actions (e.g. showing an emergency phone number when VoIP fails) help prevent users from thinking that functionality is completely broken. By designing all critical flows with keeping intermittent connectivity in mind, offline‑first UIs ensure that people can still continue their incident report, understand what the system is doing in the background and trust that their actions will eventually reach responders, even under bad network conditions.
+
+<<<
+
+[#ui-performance-and-responsiveness-in-emergency-flows]
+=== 3.4 UI Performance and Responsiveness in Emergency Flows
+
+The time taken by an application to react when a user taps the screen is referenced to as the UI performance. The steps involved include processing the input event and the application's main thread; and, if needed, requesting data over a network. For applications with emergency workflows, the goal is to ensure the time elapsed between a user tapping their screen and the screen showing its first response is less than approximately one frame (at 60 frames per second, which equals to 16 ms). Therefore, as soon as possible after a user has tapped their screen, the application should either provide some kind of cue to indicate that something is happening, prior to beginning costly operations such as parsing JSON, encrypting, accessing databases and so on. The main thread of the application will continue to handle only minor state changes and screen updates.
+
+In order to prevent expensive operations from causing jitters in the layout, layouts are designed as simply and flat as possible. With additional nesting views, there is a greater likelihood of stuttering because the number of calculations required to render increases. For maintaining a smooth user experience, the application will try to reuse views whenever it can. On top of that, the application  only renders the portion of large lists that is currently on the screen and cache images and text so there's no need for recalculating every frame. Long incident timelines or dense map overlays are managed using virtualization and items that are not within the area of the screen that is visible to the user are effectively "asleep" until the user scrolls to those items. <<ref18,[18]>>
+
+
+
+<<<
+
+[#edge-computing-and-latency-sensitive-workflows]
+=== 3.5 Edge Computing and Latency-Sensitive Workflows
+
+Incident‑based systems depend on very low latency between what happens in the real world and what users see on their screens. Instead of sending all data to distant cloud servers, newer architectures move time‑critical processing closer to users, for example onto devices, nearby gateways or edge servers operated by emergency organizations. This reduces round‑trip times and makes UI updates for maps, incident lists or sensor readings feel more immediate, even when backbone networks are congested.
+
+In a mobile incident app, parts of the workflow can therefore run directly at the edge. Video streams, sensor data or wearables can be pre‑processed locally to detect anomalies or potential incidents, while only compact alerts and summaries are forwarded to central backends. For the client UI, this means that many interactions do not depend on a full cloud round‑trip anymore but can be satisfied by nearby services, stabilizing response times and making feedback more predictable. Architecturally, responsibilities must be clearly split between device, edge and cloud so that the system can seamlessly fall back to cloud‑only operation when no edge node is available, without breaking the user experience. <<ref19,[19]>>
+
+
+
+[#fig-11-edge-architecture]
+{blank}
+
+.Edge-assisted architecture for incident-based mobile apps
+image::image22.png[Edge-assisted architecture, width=550,height=600]
+
+<<<
+
+=== 3.6 Testing, Monitoring and Telemetry for Incident UI Reliability
+
+Ensuring that incident‑related interfaces behave correctly under load and in edge cases requires a combination of automated testing and runtime monitoring. On the development side, unit and integration tests exercise view models, state reducers and navigation flows with simulated incident events, network failures and rapid state changes, verifying that the UI reaches the expected states and does not crash. Performance tests measure frame times, input latency and memory usage during typical incident scenarios, helping teams detect regressions when layouts or rendering logic change.
+
+In production, telemetry and crash reporting tools collect anonymised information about failures, slow screens and anomalous behaviour in the field. Metrics such as crash‑free session rate, average time to open critical screens, number of retries for incident submissions and frequency of timeouts provide quantitative signals about the reliability of the UI under real conditions. Logs and traces from representative devices can be replayed in staging environments to reproduce rare bugs and verify fixes before releasing updates. <<ref20,[20]>>
+
+[#fig-12-testing]
+
+{blank}
+
+.Testing and telemetry view for incident‑based mobile UIs
+image::image21.png[Testing and telemetry views, width=550,height=800]
+
+[#chapter-4-evaluation-and-application-of-ui-guidelines]
+== Chapter 4. Evaluation and Application of UI Guidelines
+
+The evaluation and application of UI guidelines for incident‑based systems focus on whether interfaces enable fast, low‑error actions in realistic emergencies. The central idea is to test complete incident flows under time pressure and analyze the task-completion. Standardized questionnaires can be added, so that both objective performance and subjective experience inform how the guidelines could be applied in future designs.
+
+[#evaluation-methods-for-incident-uis]
+=== 4.1 Evaluation Methods for Incident Uis
+
+To properly test applications designed for incidents, task‑based usability tests are very effective: participants are asked to complete workflows, while objective metrics like task‑completion rate or the time until an action is executed are recorded. These measurements should then indicate whether the tested layouts and interaction patterns are actually effective. Standardized questionnaires such as the SUS can be used to capture how usable and trustworthy the interface feels from a user’s point of view. Qualitative methods such as think‑aloud protocols and short interviews complement this data by revealing why certain interactions were confusing or which elements were helpful. To approximate the cognitive load and divided attention of real incidents more realistically, introducing moderate time pressure, background noise or secondary tasks can help. <<ref21,[21]>>
+
+[#fig-13-sus-questionnaire]
+
+.An example for a SUS questionnaire. https://yourcx.io/en/blog/2024/09/system-usability-scale-sus-in-ux-research-measuring-user-experience-effectively/[YourCX (2024)]
+image::image17.png[System Usability Scale (SUS) in UX Research: Measuring User Experience Effectively - YourCX,width=450,height=300]
+
+
+[#applying-the-guidelines-to-a-prototype-incident-app]
+=== 4.2 Applying the Guidelines to a Prototype Incident App
+
+To visualize how those guidelines can be implemented in practice, the prototype below shows basic critical functions: triggering and monitoring an emergency incident. The app has a clear visual hierarchy with one dominant primary action anchored near the bottom of the screen in the natural thumb zone, while status information are placed above it in compact banners.
+
+The prototype also respects offline‑first principles, as a  connectivity indicator switches between online and offline states. When online, a confirmed SOS is marked as “Incident sent”, the last‑sent timestamp is shown and a short success message appears; when offline, the same action results in “Incident queued (offline)” together with an explanation that the report will be sent later. Once the app returns to an online state, queued incidents are automatically treated as sent and the status banners update accordingly.
+
+
+[#fig-14-prototype]
+
+{blank}
+
+.Prototype of an incident-based app, coded in Flutter
+image::image19.png[Prototype of an incident-based app, width=550,height=800]
+
+<<<
+
+=== 4.3 Post‑Incident Reflection and Learning in Mobile Interfaces
+
+Most incident‑based applications focus on the moments during an emergency, but the period after an incident also offers opportunities for learning and emotional processing. In other domains, post‑incident debriefing and structured reflection tools are used to help individuals actually understand what happened, how they reacted and what could be improved. Such tools typically guide users through simple questions about the situation, their feelings and their behaviour, and have been associated with better self‑regulation and reduced recurrence of problematic patterns in educational and clinical settings.
+
+In practice, a post‑incident reflection flow might appear as a lightweight follow‑up screen or notification a few hours or days after the event, asking the user to review key steps, note what worked well and identify what they might do differently next time. The UI can present timelines of app actions, alongside user‑entered notes, enabling both practical and emotional reflection without overwhelming the user. Anonymized, aggregated data from such reflections can also feed back into design and evaluation, revealing where users felt confused, unsupported or particularly helped by specific UI patterns. At the same time, these features must remain optional, because not all users will want to engage with a reflection after a stressful event.
+<<ref22,[22]>>
+
+
+<<<
+
+[#chapter-5-conclusion]
+== Chapter 5. Conclusion
+
+This thesis has shown that mobile incident‑based systems have very different demands on UI design than ordinary consumer apps. Across the chapters, it became clear that emergencies are characterised by high stress, limited attention, degraded motor control and often unstable connectivity and that all this fundamentally shapes how people see, understand and act on what is shown on a screen. Interfaces that might be “good enough” in calm situations quickly become confusing, too slow or too error‑prone when every second counts.
+
+By combining insights from many different areas, this thesis derived concrete design principles for mobile incident UIs, which emphasise on clear visual hierarchies, minimal steps for critical actions, robust feedback, accessible interaction patterns and technical architectures that keep the UI responsive even under poor network conditions. The prototype application illustrates that these ideas can be implemented with current mobile frameworks and that they lead to flows which remain understandable and usable under time pressure.
+
+At the same time, several open questions remain. The evaluation in this work can only approximate real emergency conditions, and further studies with more diverse user groups, longer‑term field deployments and collaboration with emergency services are needed to validate and refine the proposed guidelines. Future research could also explore how adaptive interfaces, contextual sensing or intelligent assistants might further support users without adding complexity or undermining their sense of control.
+
+Designing incident‑based mobile interfaces is not just a technical or even aesthetic exercise, but a responsibility towards users who rely on these systems in some of the most vulnerable moments of their lives. If designers and developers consistently apply and extend the principles outlined here, incident‑based applications can become more than tools for reporting problems: they can actively help people stay oriented, act quickly and feel safer when it matters most.
+
+<<<
+
+[#bibliography]
+== Bibliography
+
+[[ref1]] [1] Article giving an overview on HCI. Accessed February 12, 2026. https://en.wikipedia.org/wiki/Human–computer_interaction
+
+[[ref2]] [2]  Entry on designing interfaces for emergency situations. Accessed February 13, 2026. https://medium.com/uxcentury/ux-in-crisis-designing-for-emergency-situations-a1a970372199
+
+[[ref3]] [3]  Article proposing usability guidelines for disaster apps. Accessed February 17, 2026. https://www.sciencedirect.com/science/article/pii/S2590061720300557
+
+[[ref4]] [4] Article explaining how to minimise cognitive load in interface design. Accessed February 18, 2026. https://www.nngroup.com/articles/minimize-cognitive-load/
+
+[[ref5]] [5] Article on UX strategies to reduce cognitive load and support mental wellbeing. Accessed February 18, 2026. https://www.zigpoll.com/content/how-can-a-user-experience-designer-create-interfaces-that-effectively-reduce-cognitive-load-and-promote-mental-wellbeing-for-users-with-anxiety
+
+[[ref6]] [6] Blog post on safety‑critical systems and reliability. Accessed February 23, 2026. https://curatepartners.com/tech-skills-tools-platforms/understanding-safety-critical-systems-ensuring-reliability-and-safety-in-high-stakes-industries/
+
+[[ref7]] [7]  Magazine entry on the mobile thumb zone and reachability‑based layout design. Accessed February 25, 2026. https://www.smashingmagazine.com/2016/09/the-thumb-zone-designing-for-mobile-users/
+
+[[ref8]] [8]  Glossary on target size and recommendations for minimum touch areas. Accessed February 28, 2026. https://www.webability.io/glossary/target-size#section-1
+
+[[ref9]] [9] Article introducing visual hierarchy concepts and basic layout techniques. Accessed March 2, 2026. https://www.masterclass.com/articles/visual-hierarchy
+
+[[ref10]] [10]  Topic page on visual hierarchy with examples and patterns. Accessed March 6, 2026. https://www.interaction-design.org/literature/topics/visual-hierarchy?srsltid=AfmBOooWxxy4C-x1lTxpKkJ-F7poYoxJepV7F6qZNdyXU7AsMuWaAGLK
+
+[[ref11]] [11]  Article on designing error‑tolerant interfaces. Accessed March 6, 2026. https://uxdesign.cc/designing-for-forgiveness-how-to-create-error-tolerant-interfaces-af9146c8072b
+
+[[ref12]] [12] SAP Fiori for design guideline page on feedback patterns. Accessed March 12, 2026. https://www.sap.com/design-system/fiori-design-ios/ui-elements/patterns/feedback/usage?external
+
+[[ref13]] [13]  Article on making Flutter apps screen‑reader‑friendly and compliant with WCAG 2.2. Accessed March 14, 2026. https://vibe-studio.ai/insights/flutter-accessibility-making-apps-screen-reader-friendly-and-wcag-2-2-compliant
+
+[[ref14]] [14]  Research article on smartphone‑based biofeedback for stress management. Accessed March 27, 2026. https://pmc.ncbi.nlm.nih.gov/articles/PMC6904898/
+
+[[ref15]] [15]  Blog post comparing major mobile app development frameworks. Accessed March 11, 2026. https://technostacks.com/blog/mobile-app-development-frameworks/
+
+[[ref16]] [16]  Medium article explaining MVVM and MVI for Android developers and their key differences. Accessed March 3, 2026. https://medium.com/@cabanas.ignacio/mvvm-and-mvi-explained-key-differences-for-android-developers-6ca09df77b21
+
+[[ref17]] [17]  Research article on optimising emergency response with offline‑capable mobile apps. Accessed on March 4, 2026. https://www.gruntify.com/optimizing-emergency-response-with-offline-mobile-apps-maps-and-workflows/
+
+[[ref18]] [18]  Android Developers documentation page on performance for responsive UIs. Accessed March 17, 2026. https://developer.android.com/topic/performance/threads.html
+
+[[ref19]] [19]  Blog article comparing edge vs. cloud latency. Accessed March 10, 2026. https://firecell.io/edge-computing-vs-cloud-latency-impact/#:~:text=Latency%20Comparison:%20Edge%20vs%20Cloud&text=Edge%20computing%20offers%20latency%20between,200%20kilometres%20of%20the%20device.
+
+[[ref20]] [20]  GeeksForGeeks overview of software testing types (unit, integration, system). Accessed March 27, 2026. https://www.geeksforgeeks.org/software-testing/types-software-testing/
+
+[[ref21]] [21]  Entry explaining the System Usability Scale (SUS) and its interpretation. Accessed March 7, 2026. https://de.ryte.com/wiki/System_Usability_Scale/
+
+[[ref22]] [22] Resource on post‑critical‑incident response and debriefing. Accessed March 28, 2026. https://www.policeforum.org/post-critical-incident
+
+
+<<<
+
+[#list-of-figures]
+== List of Figures
+
+<<fig-1-model-user-behavior,Figure 1: Model of user behavior in emergencies>>
+
+<<fig-2-usability-decision-speed-cognitive-load,Figure 2: Relationship between usability, decision speed and cognitive load>>
+
+<<fig-3-thumb-zone,Figure 3: Proportion of the screen in the natural thumb zone. Phil Wijs (Medium, 2020)>>
+
+<<fig-4-touch-error-rates,Figure 4: Estimated touch error rates for different target sizes>>
+
+<<fig-5-button-hierarchy,Figure 5: Example of a button hierarchy. Cecilia Moraes (Medium, 2023)>>
+
+<<fig-6-generic-lockscreen-notification,Figure 6: Example of a lock‑screen notification that shows a generic message>>
+
+<<fig-7-apple-watch,Figure 7: Illustration of an Apple Watch. Apple (2026)>>
+
+<<fig-8-mobile-ui-frameworks,Figure 8: Overview of popular mobile UI frameworks. Jeff Moore (2026)>>
+
+<<fig-9-architectural-patterns,Figure 9: Architectural Patterns. Medium (2023)>>
+
+<<fig-10-online-offline-architectures,Figure 10: Comparing online‑first and offline‑first architectures. Mauro Banze (2020)>>
+
+<<fig-11-edge-architecture,Figure 11: Edge-assisted architecture for incident-based mobile apps>>
+
+<<fig-12-testing,Figure 12: Testing and telemetry view for incident‑based mobile UI>>
+
+<<fig-13-sus-questionnaire, Figure 13:  An example for a SUS questionnaire. YourCX (2024)>>
+
+<<fig-14-prototype, Figure 14:  Prototype of an incident-based app, coded in Flutter>>
+
+
