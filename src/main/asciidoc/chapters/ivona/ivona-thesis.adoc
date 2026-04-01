@@ -3,7 +3,7 @@
 [.text-center.cover-author]
 Ivona RISZTESZKI, 5EHIF
 
-
+[[ivona_abstract]]
 == Abstract
 The rapid growth of real-time mobile applications has led to an increasing demand for secure, scalable and reliable storage solutions for high-frequency machine-to-machine data. +
 This thesis investigates which database architecture management system architecture best supports the secure and scalable storage of real-time machine-to-machine geolocation data in a mobile application. Relational and non-relational approaches are evaluated with respect to specific requirements. +
@@ -11,6 +11,7 @@ To address future growth and technical measures for secure data storage, growth 
 The findings demonstrate that a relational PostgreSQL database architecture can efficiently support high-frequency geolocation workloads when properly indexed and combined with an appropriate scaling and backup strategy, while also considering performed benchmark tests. +
 The work provides both theoretical analysis and practical implementation guidance for developers designing secure, real-time location-based mobile systems.
 
+[[ivona_intro]]
 == Introduction
 
 *Problem Statement:* Storing high-frequency machine-to-machine geolocation data securely and reliably in a mobile application
@@ -31,6 +32,7 @@ The application that will be developed in the scope of this thesis work is HomeS
 
 This thesis aims to compare different database management systems based on these criteria. I will consider both relational (SQL) and non-relational (NoSQL) databases.
 
+[[ivona_1]]
 == Chapter 1. Characteristics of Machine-to-Machine Data
 
 === 1.1 What is Machine-to-Machine Communication?
@@ -53,6 +55,7 @@ For geolocation-based mobile applications, the most important features of M2M da
 * Potential burst traffic in emergencies
 * Sensitive personal data security
 
+[[ivona_2]]
 == Chapter 2. Theoretical Foundations
 
 === 2.1 What is a Database Management System?
@@ -206,13 +209,14 @@ The state of the data changes without application interaction, which is connecte
 
 The system will eventually be consistent after the application input or data change, but the consistency is not guaranteed immediately or at a transaction level. <<_18, [18]>>
 
-=== 1.2.3 Usage and Popularity of Databases
+=== 2.2.3 Usage and Popularity of Databases
 
 The following StackOverflow graphic from 2025 details DBMS usage by professional developers in the industry. Overall, relational databases like PostgreSQL and MySQL still dominate the industry. However, in 5th place and with around 30% of users, noSQL DBMS like Redis are also becoming a popular option with MongoDB following close behind.
 
 .https://survey.stackoverflow.co/2025/technology#most-popular-technologies-database-prof[Source: Stack Overflow]
 image::../themes/pdf/fig5_SO_survey.png[width=800, height=600]
 
+[[ivona_3]]
 == Chapter 3. Comparative Evaluation
 
 === 3.1 SQL Databases
@@ -336,8 +340,8 @@ Following is a table comparing all of the presented options concisely based on t
 
 |===
 
-
-== Chapter 4 Practical Implementation
+[[ivona_4]]
+== Chapter 4. Practical Implementation
 
 === 4.1 Final Architecture Decision
 The final architecture that was chosen for this project was PostgreSQL. As already presented, it is a reliable option with an active and professional user ecosystem. This provides further reliability and ease of use, as well as an additional layer of security when handling user data, along with its built-in security features. There are comprehensive options for scaling.
@@ -838,10 +842,11 @@ The data retention periods are further defined in the privacy policy of the appl
 After the retention period, data will be securely deleted or anonymized. The development team implemented a combination of technical and organizational measures to protect the data, including encryption in transit (HTTPS/TLS), encryption at rest, role-based access controls, multifactor authentication for administrative
 systems and regular security reviews and vulnerability assessments.
 
+[[ivona_conclusion]]
 == Conclusion
 By theoretically examining multiple DBMS and evaluating them through practical benchmarking on a production level, the research of this thesis has shown that PostgreSQL is the best option for a secure, reliable, consistent and scalable mobile application operating with machine to machine real-time data. While the system reaches its limits on a larger scale of users, horizontal scaling, particularly through sharding, would be efficient options for the DBMS implementation. Indexing and efficient database modelling are also important contributing factors for maximising efficiency, while frequent backups and secure data storage using encryption ensure fault isolation and global recoverability.
 
-
+[[ivona_biblio]]
 [bibliography]
 == Bibliography
 

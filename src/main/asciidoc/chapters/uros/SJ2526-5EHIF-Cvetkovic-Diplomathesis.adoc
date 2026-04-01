@@ -56,22 +56,22 @@ This creates a tension that is central to this diploma thesis: safety-oriented a
 
 The purpose of this thesis is to examine how privacy and data protection requirements can be applied to safety applications with location-sharing functionality without undermining their intended benefits. The work focuses on the back-end perspective, where many of the most important decisions are enforced: authentication, authorization, API design, data storage, logging, retention, and incident readiness. Rather than proposing a new theoretical framework, the thesis aims to derive practical design patterns and implementation principles that are realistic for modern application architectures.
 
-:sectnums:
-== Fundamentals of Privacy and Data Protection
+
+== Chapter 1. Fundamentals of Privacy and Data Protection
 
 Location sharing is often introduced with a positive promise it can help people coordinate, check in with each other, or react faster in situations where time matters. At the same time, it creates a continuous stream of personal data that can reveal far more than a single point on a map - especially when those points are stored over time and correlated with other identifiers. Within the EU, the General Data Protection Regulation GDPR does not treat privacy as a purely legal wrapper around a technical system, but as a set of requirements that shape how data is collected, used, stored, secured, and deleted. The most important takeaway for an engineering-focused discussion is that lawful processing is necessary, but not sufficient the GDPR also demands data minimisation, clear purpose, strong security, and demonstrable accountability. <<ref1,[1]>>
 
-=== Core Privacy Principles
+=== 1.1 Core Privacy Principles
 
 A practical way to ground privacy and data protection is to start with the GDPRs processing principles in Article 5. These principles include lawfulness, fairness and transparency purpose limitation data minimization accuracy storage limitation integrity and confidentiality security and accountability. <<ref1,[1]>>
 These principles are deliberately technology-agnostic they describe what must be true regardless of whether data is processed in a mobile client, transmitted via APIs, or stored in databases. For location- related use cases, they become architectural questions very quickly - for example, whether precise coordinates are necessary at all, who can access them, and how long such data should exist before it is deleted. <<ref1,[1]>>
 
-==== Data Minimization and Purpose Limitation
+==== 1.1.1 Data Minimization and Purpose Limitation
 
 Data minimization means processing personal data that is adequate, relevant and limited to what is necessary for a defined purpose. Purpose limitation requires that data is collected for specified, explicit purposes and not reused later in incompatible ways. <<ref1,[1]>>
 In location-sharing contexts, these two principles are closely linked collecting high-precision location continuously because it might be useful later is often hard to justify, and it expands the harm if something goes wrong. A smaller dataset with a clear purpose is easier to protect, easier to explain transparently, and easier to delete when the purpose is fulfilled. <<ref1,[1]>>
 
-==== Transparency, Consent, and Lawful Basis
+==== 1.1.2 Transparency, Consent, and Lawful Basis
 
 The GDPR requires a lawful basis for processing personal data under Article 6(1) e.g., consent, contract necessity, legitimate interests, vital interests.
 Choosing the legal basis is not a formality it determines what must be communicated, what controls must be offered, and what expectations users can reasonably have. <<ref2,[2]>>
@@ -80,46 +80,46 @@ This matters in location features because people need to understand when locatio
 If consent is used as the lawful basis, Article 7 adds specific conditions consent must be demonstrable, and withdrawing it must be as easy as giving it.
 This creates a strong incentive to design consent flows and settings in a way that is simple, reversible, and resistant to dark patterns that pressure users into sharing. <<ref3,[3]>><<ref4,[4]>>
 
-==== Privacy by Design and Default
+==== 1.1.3 Privacy by Design and Default
 
 Article 25 data protection by design and by default turns privacy from a documentation task into a design constraint. It requires appropriate technical and organisational measures to be built into processing, and it requires that default settings process only the personal data necessary for the specific purpose.
 The by default part is particularly relevant for location sharing because defaults operate even when users do nothing. In other words, a privacy-friendly design is not only about adding optional controls, but about ensuring that the baseline behaviour is restrained minimal data, narrow access, limited retention, and secure handling throughout the lifecycle. <<ref5,[5]>>
 
 <<<
 
-=== Location Data as a Sensitive Data Category
+=== 1.2 Location Data as a Sensitive Data Category
 
 Location data can be unusually revealing because it is not only about where a person is, but also about what can be inferred from repeated observations. The Article 29 Working Party WP29 explicitly notes that location patterns can reveal places where a person sleeps, works, spends leisure time, and which social and professional relationships exist through co-location and routines. <<ref7,[7]>>
 This sensitivity increases when location information is combined with identifiers from devices and services. Recital 30 highlights that natural persons may be associated with online identifiers provided by devices, applications, tools, and protocols and that these identifiers can be used to create profiles and identify individuals. <<ref9,[9]>>
 
-==== Types and Granularity of Location Data
+==== 1.2.1 Types and Granularity of Location Data
 
 Location can be derived using different technologies with different precision and data flows. WP29 discusses location derived from mobile network base stations, GPS, and WiFi positioning, and points out that the accuracy varies significantly by method and environment. <<ref7,[7]>>
 For example, base station positioning can be relatively rough tens of meters in dense areas up to kilometers in rural areas, while GPS can provide considerably more precise positioning under typical conditions. WiFi-based positioning can also become very accurate, especially when large databases of access point identifiers and their approximate positions exist.
 
-==== Inherent Privacy Risks of Real-Time Location Sharing
+==== 1.2.2 Inherent Privacy Risks of Real-Time Location Sharing
 
 The risk profile of real-time sharing is shaped by both immediacy and persistence. WP29 notes that location services can enable providers to obtain an intimate overview of habits and patterns, which supports profiling and far-reaching inferences about private life.
 Location disclosure also has a physical-world impact misuse can enable stalking, targeted harassment, or other threats that are not limited to digital harm.
 Once location data is stored, secondary use and function creep become recurring risks, because new uses often appear that were not part of the original purpose. <<ref7,[7]>>
 
-=== Regulatory Framework
+=== 1.3 Regulatory Framework
 
 In an EU context, GDPR compliance for location-related processing can be approached as a set of non- negotiable requirements define purposes, choose a lawful basis, communicate transparently, minimise data, enforce retention limits, secure processing, and enable rights. The regulation also expects accountability, meaning it must be possible to demonstrate that these requirements are actually implemented in practice. <<ref12,[12]>>
 Because location data can create high risks, the technical side of compliance is not limited to encryption or authentication alone. It includes how defaults are chosen Article 25, how communications are made clear Article 12, and how security measures are selected and tested Article 32. <<ref4,[4]>><<ref5,[5]>><<ref6,[6]>>
 
-==== General Data Protection Regulation GDPR
+==== 1.3.1 General Data Protection Regulation GDPR
 
 Article 5 provides the guiding principles for processing, and Article 6 provides the legal bases that make processing lawful. These two parts are tightly connected a lawful basis does not remove the obligation to minimize data, limit storage, and keep processing secure.
 This is especially relevant for systems that would otherwise grow data collection over time. If a feature gradually expands from occasional location checks to continuous tracking and long-term history storage, both the purpose and necessity should be re-evaluated against the Article 5 principles. <<ref12,[12]>>
 
-==== GDPR Requirements for Location-Based Services
+==== 1.3.2 GDPR Requirements for Location-Based Services
 
 For location-based services, three requirements show up repeatedly in practice clarity about what is processed and why transparency, restraint in what is collected and retained minimization and storage limitation, and strong protection against unauthorized access integrity and confidentiality. <<ref1,[1]>>
 Article 32 frames security as a risk-based obligation and mentions measures such as pseudonymisation and encryption, ensuring ongoing confidentialityintegrityavailability, and regular testing and evaluation of security measures.
 This supports a mindset where back-end security controls, monitoring, and verification are part of normal operation, not exceptional work done only after incidents. <<ref6,[6]>>
 
-==== Data Subject Rights and Obligations of Controllers
+==== 1.3.3 Data Subject Rights and Obligations of Controllers
 
 Data subject rights influence system design because fulfilling them reliably requires that data is traceable, exportable where required, and deletable where required - without weakening security.
 Article 12 also requires that controllers facilitate the exercise of rights and communicate clearly about requests and outcomes. <<ref4,[4]>>
@@ -127,7 +127,7 @@ A concrete example is erasure Article 17 provides a right to obtain deletion wit
 This creates a direct link between retention policies how long location records exist and implementation details whether deletion workflows also cover derived copies such as backups, caches, or analytics datasets where applicable. <<ref18,[18]>>
 At the same time, rights handling must not create new vulnerabilities. Security obligations in Article 32 remain relevant during access and deletion processes, because endpoints that return personal data or trigger deletion are high-value targets and need strong protection against impersonation and abuse. <<ref6,[6]>>
 
-== Threat Landscape for Location-Sharing Applications
+== Chapter 2. Threat Landscape for Location-Sharing Applications
 
 Location sharing raises the stakes of security work because the data being processed is personal, time-
 sensitive, and easy to abuse if it leaks or is exposed to the wrong party. <<ref7,[7]>> Unlike many other data
@@ -143,7 +143,7 @@ tend to turn into broad data exposure incidents. <<ref10,[10]>><<ref11,[11]>>
 .Figure 1 - Simple User to API Architecture
 image::F1.png[]
 
-=== Attack Surface and Trust Boundaries
+=== 2.1 Attack Surface and Trust Boundaries
 
 A good threat discussion starts with the question: where does untrusted input enter, and where can
 sensitive data leave? In a typical connected service, the attack surface is not limited to the “main”
@@ -156,7 +156,7 @@ boundary, engineers may assume “internal calls are safe,” but that assumptio
 when multiple services, shared infrastructure, or third-party calls are involved.
 <<ref10,[10]>><<ref11,[11]>>
 
-=== Backend-Targeted Threats
+=== 2.2 Backend-Targeted Threats
 
 Backends are attractive targets because a single flaw can expose data at scale. Attackers do not need
 to reverse engineer the user interface; they can interact directly with the API and try variations of the
@@ -164,7 +164,7 @@ same request until something behaves differently. That makes “edge cases” es
 the one endpoint that was added late, the export route that bypasses filtering, or the debug
 parameter that was never removed. <<ref11,[11]>>
 
-==== Unauthorized API Access and Endpoint Exposure
+==== 2.2.1 Unauthorized API Access and Endpoint Exposure
 
 Unauthorized access is often misunderstood as “someone bypassed login.” In practice, many serious
 incidents happen when the attacker is correctly authenticated but is still able to perform actions or
@@ -191,7 +191,7 @@ Host: example.invalid
 Authorization: Bearer eyJ...access_token...
 ----
 
-==== Injection Attacks and Input Manipulation
+==== 2.2.2 Injection Attacks and Input Manipulation
 
 Injection remains a major vulnerability category because it targets a fundamental weakness: untrusted
 input being interpreted as instructions. OWASP’s injection category covers common cases such as SQL
@@ -214,7 +214,7 @@ if (lon < -180 || lon > 180) throw badRequest("lon out of range");
 if (req.payloadBytes() > 4096) throw payloadTooLarge();
 ----
 
-==== Insecure Direct Object References (IDOR)
+==== 2.2.3 Insecure Direct Object References (IDOR)
 
 IDOR is the practical symptom that makes broken access control visible. The system exposes a direct
 reference to an internal object (like a record ID), and the server trusts that reference without confirming
@@ -226,7 +226,7 @@ location record can be accessed by incrementing an ID, an attacker can enumerate
 object-level authorization must be checked consistently and centrally, not “remembered” by each
 endpoint author. <<ref11,[11]>>
 
-=== Third-Party Integration and Supply-Chain Risks
+=== 2.3 Third-Party Integration and Supply-Chain Risks
 
 Location-related services often rely on external providers (maps, geocoding, routing, messaging,
 analytics, identity). Each integration adds a new data flow, and every data flow creates two questions:
@@ -243,7 +243,7 @@ the impact of exploitation. <<ref13,[13]>>
 .Third-Party integration data-flow
 image::F2.png[]
 
-=== Privacy-Specific Threats
+=== 2.4 Privacy-Specific Threats
 
 Some threats are privacy threats even when the system is technically secure against outsiders. A service
 can enforce authentication correctly and still be privacy-invasive if it collects too much, retains too
@@ -252,14 +252,14 @@ highlights how location patterns can reveal sensitive details such as sleeping p
 and social relationships. <<ref7,[7]>>
 
 <<<
-==== Real-Time Location Tracking and Profiling
+==== 2.4.1 Real-Time Location Tracking and Profiling
 
 Real-time location sharing has an immediate risk (someone can locate a person right now), but the
 deeper risk comes from persistence. When real-time updates become stored history, they enable
 profiling: repeated observations allow inferences about routines and relationships. WP29 explicitly
 notes that geolocation services can provide an “intimate overview” of habits and patterns. <<ref7,[7]>>
 
-==== Unauthorized Data Aggregation and Secondary Use
+==== 2.4.2 Unauthorized Data Aggregation and Secondary Use
 
 Aggregation is where “low sensitivity” data becomes high impact. Location combined with other
 identifiers makes identification easier, and correlation over time makes profiles richer. Recital 30 notes
@@ -270,7 +270,7 @@ Secondary use is often the quiet failure mode: data collected for one purpose gr
 for analytics, monitoring, or other goals. Even if access control remains correct, the privacy impact can
 grow without any single dramatic “incident.”
 
-==== Data Leakage Through API Responses
+==== 2.4.3 Data Leakage Through API Responses
 
 Data leakage does not always mean a database dump. A common, avoidable pattern is returning full
 objects in API responses and expecting the client to hide sensitive fields. OWASP’s API3:2023
@@ -283,19 +283,19 @@ endpoint and serialize only what the endpoint truly needs to return. That both r
 and limits the blast radius if one endpoint is misused. <<ref11,[11]>>
 
 
-== Authentication & Authorization
+== Chapter 3. Authentication & Authorization
 
 Security controls in location-sharing systems usually fail at the boundaries between “who are you?” and “are you allowed to do this specific thing to this specific object?”. Authentication answers the first question, while authorization must be enforced per action and per resource, otherwise the system drifts into broken access control patterns such as IDOR or object-level authorization failures. <<ref10,[10]>><<ref11,[11]>>
 
 In this thesis, the goal is not to invent a new identity system, but to use established building blocks in a way that makes authorization decisions explicit, testable, and hard to bypass. The practical perspective matters: location endpoints are high-frequency, and small inconsistencies, like one missing ownership check or one over-broad scope, can quickly turn into bulk exposure. <<ref10,[10]>><<ref11,[11]>>
 
-=== IAM Basics and Least Privilege
+=== 3.1 IAM Basics and Least Privilege
 
 Identity and Access Management (IAM) can be treated as a design discipline: define the identities that exist, define the actions they can perform, and then build enforcement points that are consistent across endpoints. A common mistake is to think in roles only (“user”, “admin”) and stop there, even though most real systems need object-level rules (for example, a user may view their own location history, but not another user’s; a user may share location with a chosen contact, but not with everyone). <<ref10,[10]>><<ref11,[11]>>
 
 Least privilege is the principle that each identity should have only the minimum permissions required for the intended task. The key reason this matters for APIs is that the impact of one leaked token or one overly-permissive endpoint becomes much smaller when permissions are narrow and time-bounded. <<ref13,[13]>>
 
-==== Threat model for identities
+==== 3.1.1 Threat model for identities
 
 A minimal but realistic identity model for a location-sharing service typically includes:
 
@@ -306,7 +306,7 @@ A minimal but realistic identity model for a location-sharing service typically 
 
 The main point is that “friend access” is not a role in the classic sense. It is a relationship between two users, which means it must be checked at the object level, not only at the endpoint level. <<ref11,[11]>>
 
-==== Permission design pitfalls
+==== 3.1.2 Permission design pitfalls
 
 Three pitfalls show up frequently:
 
@@ -314,7 +314,7 @@ Three pitfalls show up frequently:
 - Implicit authorization. The backend assumes the client will only request “allowed” objects; this is the same failure pattern that enables IDOR and object-level authorization issues. <<ref10,[10]>><<ref11,[11]>>
 - Shared admin accounts. They destroy accountability and make incident response much harder because actions cannot be attributed cleanly. <<ref13,[13]>>
 
-=== OAuth 2.0 and OpenID Connect
+=== 3.2 OAuth 2.0 and OpenID Connect
 
 For mobile and SPA-like clients, the standard approach is usually delegated authentication: the app redirects the user to an Identity Provider (IdP), the user authenticates there, and the app receives tokens that can be presented to the backend API. OAuth 2.0 defines the framework for delegated authorization, and OpenID Connect (OIDC) builds an identity layer on top of OAuth 2.0. <<ref14,[14]>><<ref16,[16]>>
 
@@ -324,7 +324,7 @@ In your context (Flutter client + Spring Boot backend), this splits responsibili
 - The backend API verifies tokens and enforces authorization rules for endpoints and objects.
 - The client stores and presents tokens, but is not trusted to make authorization decisions.
 
-==== Authorization Code Flow with PKCE
+==== 3.2.1 Authorization Code Flow with PKCE
 
 For public clients (mobile apps), PKCE is a practical mechanism to reduce the risk of authorization code interception by binding the authorization request to the token exchange. In other words, even if an attacker obtains the authorization code, the code alone should not be sufficient to redeem tokens without the PKCE verifier. <<ref15,[15]>>
 
@@ -333,7 +333,7 @@ This is a good fit when you want a clean separation: the client uses the standar
 .PKCE authorization code flow
 image::F3.png[]
 
-==== Token types: ID token vs access token
+==== 3.2.2 Token types: ID token vs access token
 
 In OIDC-based setups, it helps to treat token roles strictly:
 
@@ -342,7 +342,7 @@ In OIDC-based setups, it helps to treat token roles strictly:
 
 Mixing these responsibilities (for example, using the ID token as an API authorization token) tends to produce fragile systems and accidental over-sharing.
 
-==== Token validation, expiry, refresh
+==== 3.2.3 Token validation, expiry, refresh
 
 Token validation should be implemented as a strict gate before any business logic runs. At minimum, the backend should validate signature and key material, issuer, audience, expiry, and any relevant token constraints before it accepts a request as authenticated. <<ref17,[17]>>
 
@@ -371,7 +371,7 @@ if(!jwt.hasScope("location.read.current")) reject(403);
 ----
 
 <<<
-=== Delegated Authentication and Trust Boundaries
+=== 3.3 Delegated Authentication and Trust Boundaries
 
 Delegated authentication simplifies your application, but it does not remove risk; it relocates it. Your trust boundary becomes: “I trust tokens that were issued by my IdP for my API, and I distrust everything else.” That means configuration matters a lot, and small mistakes (wrong audience, accepting tokens from another tenant, weak default rules) can create confusing failures that look like “random” authorization bugs.
 
@@ -382,7 +382,7 @@ Practically, it also means your logs and monitoring should distinguish between:
 
 This distinction is useful both for debugging and for incident response. <<ref13,[13]>>
 
-=== Authorization Model for Location Data
+=== 3.4 Authorization Model for Location Data
 
 Authorization for location data should be designed around “what is the action” and “what is the target object.” A role like “user” can tell you what broad category the person belongs to, but it does not answer whether that user may read another user’s current location at this moment. That decision is relationship-based and often time-based. <<ref11,[11]>>
 
@@ -391,7 +391,7 @@ A practical model combines:
 - Coarse permissions (scopes / roles) to restrict which endpoints and operations are available at all.
 - Fine-grained checks (object-level authorization) to restrict which specific user’s location record can be accessed or modified. <<ref10,[10]>><<ref11,[11]>>
 
-==== Object-level authorization rules
+==== 3.4.1 Object-level authorization rules
 
 For each location-related endpoint, define an explicit rule. Examples:
 
@@ -401,7 +401,7 @@ For each location-related endpoint, define an explicit rule. Examples:
 
 These rules are exactly where broken access control issues show up when they are missing or inconsistently applied. <<ref10,[10]>><<ref11,[11]>>
 
-==== Scope design examples
+==== 3.4.2 Scope design examples
 
 Scopes should stay small and meaningful. For example:
 
@@ -416,11 +416,11 @@ sharing.manage
 The point is not to create dozens of scopes, but to avoid the classic “one scope that means everything” outcome. When scopes are narrow, you can also make consent more granular, which aligns better with user expectations and makes revocation meaningful in practice.
 
 
-== Secure Backend Architecture Patterns
+== Chapter 4. Secure Backend Architecture Patterns
 
 A secure back-end architecture is not only a collection of controls, but a way to make the safe path the default: consistent authorization, predictable data handling, and minimal accidental exposure. For services that process location data, architecture choices influence both security risk (who can access what) and privacy impact (how much sensitive data exists, for how long, and in what form). The GDPR framing from earlier chapters matters here because security measures and “data protection by design and by default” are not optional extras; they are part of the expected engineering baseline. <<ref5,[5]>><<ref6,[6]>><<ref1,[1]>><<ref7,[7]>>
 
-=== Security-First API Design
+=== 4.1 Security-First API Design
 
 Security-first API design begins with the assumption that every request is untrusted input until validation and authorization succeed. This is one reason why API failures often show up as broken access control or unintended data exposure rather than “exotic” technical problems. For location-related payloads, strict validation is especially important because minor edge cases (out-of-range coordinates, malformed timestamps, oversized payloads) can turn into confusing behavior that is hard to monitor and easy to abuse. <<ref11,[11]>>
 
@@ -431,7 +431,7 @@ API design should also include defensive measures against automated misuse and a
 .Correct API Defense Enforcement Order
 image::F4.png[]
 
-=== Data Protection in Transit
+=== 4.2 Data Protection in Transit
 
 Data protection in transit should assume hostile networks, particularly for mobile clients. TLS for all endpoints is the baseline, and it should be treated as non-negotiable for any route that processes personal data. OWASP’s Transport Layer Protection guidance also emphasizes serving content over HTTPS and avoiding insecure transport configurations that enable downgrade or interception scenarios. <<ref6,[6]>><<ref18,[18]>>
 
@@ -440,7 +440,7 @@ On top of TLS, HTTP Strict Transport Security (HSTS) can help enforce HTTPS-only
 <<<
 If delegated authentication is used, the trust boundary should be clear: the API accepts only tokens intended for it and validates issuer, audience, expiry, and signature before any business logic runs. For public clients, the Authorization Code Flow with PKCE is a standardized mitigation against authorization code interception. <<ref17,[17]>><<ref15,[15]>>
 
-=== Data Protection at Rest
+=== 4.3 Data Protection at Rest
 
 Data protection at rest is about limiting impact when things go wrong: database compromise, leaked backups, or accidental internal access. Article 32 frames security as risk-based and explicitly lists measures such as encryption and pseudonymisation, and it also requires regular testing and evaluation of security measures. Separately, Article 5’s principles (especially data minimisation and storage limitation) mean that “protecting stored data” is not only about encryption; it is also about reducing what is stored and how long it exists. <<ref6,[6]>><<ref1,[1]>>
 
@@ -448,27 +448,27 @@ For location data, this leads to a practical architectural pattern: treat “cur
 
 Secure implementation is also a lifecycle concern. NIST’s Secure Software Development Framework (SSDF) treats security as continuous work that spans requirements, design, implementation, verification, and maintenance, which fits well with the long-term nature of privacy and security obligations. <<ref13,[13]>>
 
-=== Logging and Observability without Data Leakage
+=== 4.4 Logging and Observability without Data Leakage
 
 Logging is necessary for incident investigation and abuse detection, but it can easily become a second sensitive dataset. OWASP’s Logging Cheat Sheet recommends focusing on security-relevant events (e.g., authentication and authorization failures) and warns against logging secrets and sensitive data such as passwords and tokens. For location processing, the same principle suggests that raw coordinates and raw request/response bodies should not be logged by default, because they create long-lived traces that are easy to misuse. <<ref20,[20]>>
 
 Structured logging helps keep logs useful without storing unnecessary personal data. In practice, that means keeping operational context (timestamp, route, status code, correlation id, reason for denial) while redacting or omitting sensitive fields. Logs should also be protected operationally - restricted access, monitored queries, and defined retention periods - because confidentiality failures in logs can expose sensitive information even when the primary database is well protected. <<ref20,[20]>><<ref1,[1]>>
 
 
-== Privacy-Preserving Location Processing
+== Chapter 5. Privacy-Preserving Location Processing
 
 Location data becomes sensitive less because of a single coordinate and more because repeated points form patterns that reveal routines, relationships, and private places. Privacy-preserving processing therefore starts with reducing what is collected and what is stored, not only with “locking it down” after the fact, which aligns with GDPR principles like data minimisation, purpose limitation, and storage limitation. The “by design and by default” requirement is a useful engineering lens here: the default behavior should already be restrained, even if a user never changes any settings. <<ref7,[7]>><<ref1,[1]>><<ref5,[5]>>
 
 .Location data lifecycle
 image::F5.png[]
 
-=== Minimising Precision and Frequency
+=== 5.1 Minimising Precision and Frequency
 
 Data minimisation is not just “collect fewer fields”; for location it often means choosing a lower precision or a lower update frequency that still supports the safety goal. WP29 highlights that location patterns can expose sleeping places, workplaces, habits, and social relationships, which is exactly why continuous high-precision tracking should be treated as the exceptional case, not the baseline. A practical approach is to implement “precision tiers” (e.g., exact coordinates only when strictly needed, otherwise approximate areas) and to prefer event-based updates (significant movement, entering/leaving a defined area, explicit check-ins) over constant streaming. <<ref1,[1]>><<ref7,[7]>><<ref5,[5]>>
 
 Frequency control is just as important as precision control. If the service only needs a fresh position occasionally, storing high-frequency updates creates privacy risk without creating proportional value, and it increases impact if access control ever fails. Concrete measures include: minimum time between updates, minimum distance threshold before accepting a new point, server-side throttling per user/device, and “automatic stop” conditions (e.g., sharing expires after a short time window unless actively renewed). <<ref1,[1]>><<ref7,[7]>><<ref5,[5]>>
 
-=== Pseudonymisation and Controlled Linkability
+=== 5.2 Pseudonymisation and Controlled Linkability
 
 Pseudonymisation aims to reduce harm by limiting direct identifiers and making linkage harder unless a controlled mechanism exists. GDPR explicitly mentions pseudonymisation as a relevant security measure, but it is also clear that pseudonymised data is still personal data if it can be linked back to a person with additional information. For location processing, the practical value is that pseudonymisation reduces accidental exposure risk (e.g., if a dataset is accessed internally for debugging or analytics) and shrinks the blast radius of some classes of leaks. <<ref6,[6]>>
 
@@ -478,13 +478,13 @@ A useful pattern is controlled linkability: store identity and location data in 
 image::F6.png[]
 
 <<<
-=== Consent and User Control
+=== 5.3 Consent and User Control
 
 Transparency and user control determine whether location sharing is understandable and reversible in practice, not only “lawful on paper". Article 12 requires information to be concise and clear, which suggests that a location feature should communicate, in plain language, what is shared, with whom, at what precision, and how to stop it. If consent is used as the lawful basis, Article 7 adds a strong usability requirement: withdrawal must be as easy as giving consent, which means revocation cannot be buried behind complex menus or delayed effects. <<ref4,[4]>><<ref3,[3]>>
 
 Granularity matters because “share location” is not one decision; it is several decisions bundled together. Practical controls include: time-limited sharing (default expiry), per-contact permissions, separate toggles for current location vs. history, and a clear “pause sharing” switch that has immediate effect. On the technical side, OAuth 2.0 / OpenID Connect based setups support a capability mindset (scopes and claims), which fits well with modelling location permissions as narrow, explicit rights rather than one broad permission that implicitly allows everything. <<ref5,[5]>><<ref3,[3]>><<ref14,[14]>><<ref16,[16]>>
 
-=== Retention and Automated Deletion
+=== 5.4 Retention and Automated Deletion
 
 Storage limitation is where privacy promises either become real or quietly fail over time. If location is stored indefinitely “just in case,” the dataset becomes more sensitive with every day that passes, and the harm of any future exposure increases. A retention policy should therefore be explicit and enforced automatically: current location and short-lived operational data can have short retention windows, while history - if it exists at all - should have stricter rules and a clear justification. <<ref1,[1]>><<ref7,[7]>><<ref5,[5]>>
 
@@ -493,11 +493,11 @@ Deletion is not only a housekeeping task; it connects directly to data subject r
 that should be verified (e.g., scheduled tests that confirm data actually disappears after the retention window). <<ref8,[8]>><<ref1,[1]>><<ref6,[6]>>
 
 
-== Compliance and Incident Readiness
+== Chapter 6. Compliance and Incident Readiness
 
 Compliance in location-based safety services is not achieved by writing a policy once; it is maintained through repeatable processes that keep privacy decisions aligned with how the system actually behaves in production. The practical goal is to make privacy and security measurable and auditable: what is processed, why it is necessary, who can access it, how long it is kept, and which safeguards reduce risk. This chapter focuses on three operational pillars that support that goal: risk thinking (DPIA-style), handling data subject requests, and being prepared for incidents. <<ref1,[1]>><<ref5,[5]>><<ref6,[6]>>
 
-=== DPIA Thinking and Risk Treatment
+=== 6.1 DPIA Thinking and Risk Treatment
 
 A Data Protection Impact Assessment (DPIA) can be approached as a structured way to identify risks early, decide on mitigations, and document why the remaining risk is acceptable. Even when a formal DPIA is not explicitly required, the mindset is useful because it forces concrete answers: what data is collected, what inferences are possible, what misuse scenarios exist, and which safeguards are in place. For location processing, this matters because the highest risks often come from “normal functionality” (e.g., persistent tracking, relationship inference, misuse by an authenticated user) rather than from rare edge cases. <<ref1,[1]>><<ref6,[6]>><<ref7,[7]>><<ref11,[11]>>
 
@@ -505,7 +505,7 @@ In practice, “when does this become high-risk?” can be evaluated using pract
 
 A simple way to keep DPIA thinking actionable is to maintain a small “risk register” that is updated alongside architecture changes. A compact register entry can include: processing purpose, data categories (precision, frequency), threat scenario (e.g., BOLA/IDOR on history endpoint), likelihood/impact, existing controls, remaining gaps, and a clear mitigation plan with an owner and deadline. This form of documentation supports accountability because it shows not only which controls exist, but why they were chosen and how they are maintained. <<ref6,[6]>><<ref13,[13]>><<ref11,[11]>><<ref1,[1]>>
 
-=== Handling Data Subject Requests
+=== 6.2 Handling Data Subject Requests
 
 Data subject requests influence system design because rights can only be fulfilled reliably if data is traceable, retrievable, and deletable without weakening security. Article 12 places emphasis on clear communication and on facilitating the exercise of rights, which is a useful engineering requirement: workflows should be understandable, predictable, and not depend on manual “hero debugging.” A common pitfall is to treat rights handling as an administrative process only, while in reality it is also an API and data management problem. <<ref4,[4]>><<ref6,[6]>>
 
@@ -519,7 +519,7 @@ A robust request-handling workflow can be expressed in a few concrete steps:
 - Secure deletion execution (idempotent deletion jobs, audit trail, and verification that the deletion propagated where expected). <<ref6,[6]>><<ref8,[8]>>
 - Safe communication (status updates that do not leak sensitive information to unauthenticated parties). <<ref4,[4]>>
 
-=== Incident Response and Breach Considerations
+=== 6.3 Incident Response and Breach Considerations
 
 Even well-designed systems should assume that something will eventually go wrong: a misconfiguration, a leaked credential, a vulnerable dependency, or an authorization mistake that slips through. Article 32’s framing supports this assumption by requiring not only protection measures, but also ongoing evaluation and testing, which naturally leads to incident readiness practices such as monitoring, drills, and clear operational runbooks. Incident readiness is therefore part of compliance: it reduces harm, improves detection time, and makes outcomes more predictable under pressure. <<ref6,[6]>><<ref13,[13]>>
 
@@ -528,7 +528,7 @@ From an engineering perspective, it helps to separate two goals that can conflic
 .Incident lifecycle loop
 image::F7.png[]
 
-==== What you log/keep to investigate incidents without storing extra location data
+==== 6.3.1 What you log/keep to investigate incidents without storing extra location data
 
 Logging strategy should be designed with the assumption that logs are sensitive and attractive to attackers. OWASP’s Logging guidance explicitly warns against logging secrets such as passwords and tokens, and encourages logging security-relevant events that help investigations. For location processing, the practical implication is to avoid logging raw coordinates and raw request/response bodies by default, because they can recreate sensitive movement patterns long after the original purpose has expired. <<ref20,[20]>><<ref1,[1]>>
 
@@ -536,7 +536,7 @@ A good compromise is to log “what happened” rather than “what was processe
 
 Retention for logs should be explicit and justified, because keeping security logs forever increases privacy exposure and operational risk without necessarily improving security outcomes. This ties back to storage limitation as a principle: operational datasets should exist only as long as they are needed for their operational purpose. <<ref1,[1]>><<ref20,[20]>>
 
-==== “Day 1” response checklist
+==== 6.3.2 “Day 1” response checklist
 
 When an incident is suspected, the first day is mostly about limiting damage and preserving enough evidence to understand what happened. A concise checklist helps reduce cognitive load and prevents teams from improvising under stress. The following actions are broadly applicable to incidents involving unauthorized access or unexpected exposure patterns in location-related services. <<ref6,[6]>><<ref20,[20]>><<ref11,[11]>>
 
@@ -550,7 +550,6 @@ When an incident is suspected, the first day is mostly about limiting damage and
 
 Finally, readiness improves significantly if these steps are practiced before they are needed. Short tabletop exercises and periodic reviews of logging, retention, and access control rules often find gaps that do not appear in normal development workflows. <<ref6,[6]>><<ref20,[20]>>
 
-:sectnums!:
 == Conclusion
 
 This diploma thesis shows that privacy in location-sharing features does not have to conflict with safety goals, as long as privacy is treated as an engineering requirement rather than a documentation afterthought. Location data is especially sensitive because even a small number of points - and even more so a stored history - can reveal routines, relationships, and private places. The key takeaway is that lawful processing is necessary but not sufficient: strong results come from data minimization, clear purpose limitation, privacy-friendly defaults, and demonstrable accountability implemented throughout the lifecycle.

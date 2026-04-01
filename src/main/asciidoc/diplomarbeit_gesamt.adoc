@@ -11,26 +11,31 @@
 :blankline: pass:[ +]
 :lang: DE
 :hyphens:
-:toc-placement!:
 
-// Lädt das PDF, das aus der Wordvorlage erzeugt wurde, zu Beginn der Arbeit.
-image::diplomarbeit_intro.pdf[pages=1..99]
 
-// Schreibt das Inhaltsverzeichnis
-:toc!:
-
-== Table of Contents
-
-1. Abstract ...................................................................................................................................... 8
-2. Database Architecture Strategies by Ivona Riszteszki .............................................................. 9
-3. Privacy and Data Protection by Uros Cvetkovic ..................................................................... 44
-4. Mobile Application UI Design by Linda Davies ..................................................................... 80
+//image::diplomarbeit_intro.pdf[pages=1..99]
 
 <<<
 
+toc::[]
+
+<<<
+
+[[abstract]]
 ==  Abstract
 
-This diploma thesis examines three complementary aspects of safety‑critical digital systems in modern environments: data architecture for machine‑to‑machine communication, mobile user interfaces for incident‑based applications, and privacy and data protection in safety apps with location sharing. The first contribution analyzes database architecture strategies for storing large volumes of machine‑to‑machine (M2M) data, focusing on schema design, partitioning, indexing and retention concepts that keep sensor and event streams both scalable and queryable for real‑time monitoring and long‑term analytics. The second contribution focuses on mobile application UI design for incident‑based systems, investigating how layout, interaction patterns and technical foundations can support stressed users in triggering and tracking emergencies quickly and with minimal error, even under unstable connectivity and device constraints. The third contribution explores privacy and data protection requirements in safety applications that rely on continuous or event‑based location sharing, outlining threat landscapes, relevant legal frameworks and architectural patterns that separate identities, locations and permissions to reduce privacy risks. Together, the three works provide a multi‑layered perspective on how reliable back‑end data architectures, incident‑oriented mobile interfaces and privacy‑aware safety designs must interact so that digital systems can support users effectively and responsibly in critical situations.
+=== English
+
+In this thesis, the focus is placed on the design and integration of safety-critical digital systems in modern environments. The exploration begins with data architectures for machine-to-machine communication, examining how large volumes of data can be stored and managed efficiently. Through strategies such as schema design, partitioning, indexing and data retention, the work highlights approaches that ensure both real-time responsiveness and long-term analytical capability. +
+Building on this, the work explores privacy and data protection in safety applications that rely on location sharing. By analysing threat scenarios and relevant regulatory considerations, it outlines architectural approaches that separate identities, locations and access permissions to mitigate privacy risks while preserving functionality. +
+Finally, the thesis investigates mobile application user interfaces for incident-based systems. Emphasis is placed on how layout, interaction patterns and technical foundations can support users in high-stress situations, enabling fast and reliable emergency triggering and tracking even under constrained device performance and unstable network conditions. +
+Taken together, these contributions demonstrate how scalable data infrastructures, user-centred mobile interfaces and privacy-aware system designs can be combined to support effective and responsible operation in safety-critical contexts.
+
+=== Deutsch
+In dieser Arbeit liegt der Fokus auf der Gestaltung und Integration sicherheitskritischer digitaler Systeme in modernen Umgebungen. Zunächst werden Datenarchitekturen für Machine-to-Machine-Kommunikation untersucht, wobei analysiert wird, wie große Mengen an Daten effizient gespeichert und verwaltet werden können. Durch Strategien wie Schema-Design, Partitionierung, Indexierung und Data Retention werden Ansätze aufgezeigt, die sowohl Echtzeitverarbeitung als auch langfristige Analysefähigkeit ermöglichen. +
+Darauf aufbauend befasst sich die Arbeit mit den Privacy- und Data-Protection-Aspekte in Sicherheitsapplikationen mit dem Teilen der Lokation. Durch die Analyse von Bedrohungsszenarien und relevanten regulatorischen Rahmenbedingungen werden architektonische Ansätze vorgestellt, die Identitäten, Standortdaten und Zugriffsrechte trennen, um Datenschutzrisiken zu minimieren und gleichzeitig die Funktionalität zu erhalten. +
+Abschließend wird die Gestaltung von Mobile Application User Interfaces für incident-basierte Systeme untersucht. Der Schwerpunkt liegt darauf, wie Layout, Interaktionsmuster und technische Grundlagen Nutzer in Stresssituationen unterstützen können, sodass Notfälle schnell und zuverlässig ausgelöst und nachverfolgt werden können – selbst unter eingeschränkter Geräteleistung und instabiler Netzwerkverbindung. +
+Insgesamt zeigt die Arbeit, wie skalierbare Dateninfrastrukturen, nutzerzentrierte Mobile Interfaces und datenschutzbewusste Systemdesigns zusammenwirken können, um eine effektive und verantwortungsvolle Nutzung in sicherheitskritischen Kontexten zu ermöglichen.
 
 <<<
 // Füge die Arbeit jedes einzelnen ein.
@@ -38,15 +43,21 @@ This diploma thesis examines three complementary aspects of safety‑critical di
 
 // include::diplomarbeit_themenstellung.adoc[]
 
+[[ivona]]
 include::chapters/ivona/ivona-thesis.adoc[]
 
 :imagesdir: chapters/uros/images
+[[uros]]
 include::chapters/uros/SJ2526-5EHIF-Cvetkovic-Diplomathesis.adoc[]
 
 <<<
 
 :imagesdir: chapters/linda/images
+[[linda]]
 include::chapters/linda/linda-thesis.adoc[]
 
-// Hier kannst du ggf. Anhänge aus externen Quellen laden.
-// image::diplomarbeit_anhang.pdf[pages=1..99]
+
+<<<
+
+[[documentation]]
+image::Final_Documentation.pdf[pages=1..79]
