@@ -65,6 +65,26 @@ heading:
   line_height: 1.2
   margin_bottom: $vertical_rhythm
   image_vertical_align: top
+heading-h1:
+  text-align: center
+  font-color: #ac0e31
+  font-size: 26
+  font-style: bold
+  line-height: 1.15
+  margin-top: 700mm
+  margin-bottom: 10mm
+
+heading-part-break-before: page
+
+role:
+  cover-author:
+    font-color: #333333
+    font-size: 17
+    font-style: bold
+  cover-subtitle:
+    font-color: $brand_primary_color
+    font-size: 13
+    font-style: italic
 link:
   font_color: $brand_link_color
 outline_list:

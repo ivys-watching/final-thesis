@@ -43,6 +43,8 @@ include::chapters/ivona/ivona-thesis.adoc[]
 :imagesdir: chapters/uros/images
 include::chapters/uros/SJ2526-5EHIF-Cvetkovic-Diplomathesis.adoc[]
 
+<<<
+
 :imagesdir: chapters/linda/images
 include::chapters/linda/linda-thesis.adoc[]
 

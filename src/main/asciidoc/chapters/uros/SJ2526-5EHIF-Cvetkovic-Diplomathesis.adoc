@@ -1,5 +1,7 @@
 = Privacy and Data Protection in Safety Applications with Location Sharing
-Uroš Cvetković
+
+[.text-center.cover-author]
+Uroš CVETKOVIĆ, 5EHIF
 
 <<<
 
@@ -578,7 +580,7 @@ On the technical side, the most relevant risks are not “exotic hacks,” but r
 * [[ref19]] [19] RFC 6797 (HSTS), last accessed 30.03.2026 - https://www.rfc-editor.org/rfc/rfc6797[]
 * [[ref20]] [20] OWASP Logging Cheat Sheet, last accessed 30.03.2026 - https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html[]
 * [[ref21]] [21] RFC 9325 (TLS/DTLS recommendations), last accessed 30.03.2026 - https://www.ietf.org/rfc/rfc9325.html[]
-* [[f3]] [Figure 3] PKCE Autorization, last accessed 30.03.2026 - https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-pkce[]
+* [[f8]] [Figure 8] PKCE Autorization, last accessed 30.03.2026 - https://auth0.com/docs/get-started/authentication-and-authorization-flow/authorization-code-flow-with-pkce[]
 
 
 

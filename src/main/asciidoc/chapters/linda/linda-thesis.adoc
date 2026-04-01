@@ -1,7 +1,7 @@
-:blank: {empty}
-
 = Mobile Application UI Design for Incident-Based Systems
-Linda Davies
+
+[.text-center.cover-author]
+Linda DAVIES, 5EHIF
 
 
 
@@ -365,8 +365,8 @@ In practice, a post‑incident reflection flow might appear as a lightweight fol
 
 <<<
 
-[#chapter-5-conclusion]
-== Chapter 5. Conclusion
+[#conclusion-linda]
+== Conclusion
 
 This thesis has shown that mobile incident‑based systems have very different demands on UI design than ordinary consumer apps. Across the chapters, it became clear that emergencies are characterised by high stress, limited attention, degraded motor control and often unstable connectivity and that all this fundamentally shapes how people see, understand and act on what is shown on a screen. Interfaces that might be “good enough” in calm situations quickly become confusing, too slow or too error‑prone when every second counts.
 
@@ -431,32 +431,32 @@ Designing incident‑based mobile interfaces is not just a technical or even aes
 [#list-of-figures]
 == List of Figures
 
-<<fig-1-model-user-behavior,Figure 1: Model of user behavior in emergencies>>
+<<fig-1-model-user-behavior,Figure 13: Model of user behavior in emergencies>>
 
-<<fig-2-usability-decision-speed-cognitive-load,Figure 2: Relationship between usability, decision speed and cognitive load>>
+<<fig-2-usability-decision-speed-cognitive-load,Figure 14: Relationship between usability, decision speed and cognitive load>>
 
-<<fig-3-thumb-zone,Figure 3: Proportion of the screen in the natural thumb zone. Phil Wijs (Medium, 2020)>>
+<<fig-3-thumb-zone,Figure 15: Proportion of the screen in the natural thumb zone. Phil Wijs (Medium, 2020)>>
 
-<<fig-4-touch-error-rates,Figure 4: Estimated touch error rates for different target sizes>>
+<<fig-4-touch-error-rates,Figure 16: Estimated touch error rates for different target sizes>>
 
-<<fig-5-button-hierarchy,Figure 5: Example of a button hierarchy. Cecilia Moraes (Medium, 2023)>>
+<<fig-5-button-hierarchy,Figure 17: Example of a button hierarchy. Cecilia Moraes (Medium, 2023)>>
 
-<<fig-6-generic-lockscreen-notification,Figure 6: Example of a lock‑screen notification that shows a generic message>>
+<<fig-6-generic-lockscreen-notification,Figure 18: Example of a lock‑screen notification that shows a generic message>>
 
-<<fig-7-apple-watch,Figure 7: Illustration of an Apple Watch. Apple (2026)>>
+<<fig-7-apple-watch,Figure 19: Illustration of an Apple Watch. Apple (2026)>>
 
-<<fig-8-mobile-ui-frameworks,Figure 8: Overview of popular mobile UI frameworks. Jeff Moore (2026)>>
+<<fig-8-mobile-ui-frameworks,Figure 20: Overview of popular mobile UI frameworks. Jeff Moore (2026)>>
 
-<<fig-9-architectural-patterns,Figure 9: Architectural Patterns. Medium (2023)>>
+<<fig-9-architectural-patterns,Figure 21: Architectural Patterns. Medium (2023)>>
 
-<<fig-10-online-offline-architectures,Figure 10: Comparing online‑first and offline‑first architectures. Mauro Banze (2020)>>
+<<fig-10-online-offline-architectures,Figure 22: Comparing online‑first and offline‑first architectures. Mauro Banze (2020)>>
 
-<<fig-11-edge-architecture,Figure 11: Edge-assisted architecture for incident-based mobile apps>>
+<<fig-11-edge-architecture,Figure 23: Edge-assisted architecture for incident-based mobile apps>>
 
-<<fig-12-testing,Figure 12: Testing and telemetry view for incident‑based mobile UI>>
+<<fig-12-testing,Figure 24: Testing and telemetry view for incident‑based mobile UI>>
 
-<<fig-13-sus-questionnaire, Figure 13:  An example for a SUS questionnaire. YourCX (2024)>>
+<<fig-13-sus-questionnaire, Figure 25:  An example for a SUS questionnaire. YourCX (2024)>>
 
-<<fig-14-prototype, Figure 14:  Prototype of an incident-based app, coded in Flutter>>
+<<fig-14-prototype, Figure 26:  Prototype of an incident-based app, coded in Flutter>>
 
 
