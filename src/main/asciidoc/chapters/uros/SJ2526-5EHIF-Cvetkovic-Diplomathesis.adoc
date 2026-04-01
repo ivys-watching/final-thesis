@@ -1,5 +1,5 @@
 = Privacy and Data Protection in Safety Applications with Location Sharing
-Uroš CVETKOVIĆ, 5EHIF
+Uroš Cvetković
 
 <<<
 

@@ -1,4 +1,5 @@
-= 1 Topic "Database Architecture Strategies Focused on Storing Machine to Machine Data" Ivona Riszteszki
+= Database Architecture Strategies Focused on Storing Machine to Machine Data
+Ivona Riszteszki
 
 
 == Abstract

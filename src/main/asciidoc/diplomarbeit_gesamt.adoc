@@ -17,8 +17,22 @@
 image::diplomarbeit_intro.pdf[pages=1..99]
 
 // Schreibt das Inhaltsverzeichnis
-toc::[]
+:toc!:
 
+== Table of Contents
+
+1. Abstract ...................................................................................................................................... 8
+2. Database Architecture Strategies by Ivona Riszteszki .............................................................. 9
+3. Privacy and Data Protection by Uros Cvetkovic ..................................................................... 44
+4. Mobile Application UI Design by Linda Davies ..................................................................... 80
+
+<<<
+
+==  Abstract
+
+This diploma thesis examines three complementary aspects of safety‑critical digital systems in modern environments: data architecture for machine‑to‑machine communication, mobile user interfaces for incident‑based applications, and privacy and data protection in safety apps with location sharing. The first contribution analyzes database architecture strategies for storing large volumes of machine‑to‑machine (M2M) data, focusing on schema design, partitioning, indexing and retention concepts that keep sensor and event streams both scalable and queryable for real‑time monitoring and long‑term analytics. The second contribution focuses on mobile application UI design for incident‑based systems, investigating how layout, interaction patterns and technical foundations can support stressed users in triggering and tracking emergencies quickly and with minimal error, even under unstable connectivity and device constraints. The third contribution explores privacy and data protection requirements in safety applications that rely on continuous or event‑based location sharing, outlining threat landscapes, relevant legal frameworks and architectural patterns that separate identities, locations and permissions to reduce privacy risks. Together, the three works provide a multi‑layered perspective on how reliable back‑end data architectures, incident‑oriented mobile interfaces and privacy‑aware safety designs must interact so that digital systems can support users effectively and responsibly in critical situations.
+
+<<<
 // Füge die Arbeit jedes einzelnen ein.
 // WICHTIG: Nach jedem include muss eine Leerzeile sein!
 
@@ -29,11 +43,8 @@ include::chapters/ivona/ivona-thesis.adoc[]
 :imagesdir: chapters/uros/images
 include::chapters/uros/SJ2526-5EHIF-Cvetkovic-Diplomathesis.adoc[]
 
-// include::diplomarbeit_themenstellung_nachname2.adoc[]
-
-// include::diplomarbeit_themenstellung_nachname3.adoc[]
-
-// include::diplomarbeit_themenstellung_nachname4.adoc[]
+:imagesdir: chapters/linda/images
+include::chapters/linda/linda-thesis.adoc[]
 
 // Hier kannst du ggf. Anhänge aus externen Quellen laden.
 // image::diplomarbeit_anhang.pdf[pages=1..99]
