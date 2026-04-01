@@ -94,12 +94,12 @@ header:
   line_height: 1
   recto:
     left:
-      content: '{document-title}'
+      content: 'HomeSafe'
     right:
       content: image:spengergasse-logo.png[pdfwidth=25%]
   verso:
     right:
-      content: '{document-title}'
+      content: 'HomeSafe'
     left:
       content: image:spengergasse-logo.png[pdfwidth=25%]
 footer:
