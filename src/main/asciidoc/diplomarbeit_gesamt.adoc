@@ -29,11 +29,9 @@ include::chapters/ivona/ivona-thesis.adoc[]
 :imagesdir: chapters/uros/images
 include::chapters/uros/SJ2526-5EHIF-Cvetkovic-Diplomathesis.adoc[]
 
-// include::diplomarbeit_themenstellung_nachname2.adoc[]
+:imagesdir: chapters/linds/images
+include::chapters/linda/linda-thesis.adoc[]
 
-// include::diplomarbeit_themenstellung_nachname3.adoc[]
-
-// include::diplomarbeit_themenstellung_nachname4.adoc[]
 
 // Hier kannst du ggf. Anhänge aus externen Quellen laden.
 // image::diplomarbeit_anhang.pdf[pages=1..99]

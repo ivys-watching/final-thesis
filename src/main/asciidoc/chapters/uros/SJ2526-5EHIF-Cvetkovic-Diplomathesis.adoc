@@ -1,5 +1,6 @@
+
 = Privacy and Data Protection in Safety Applications with Location Sharing
-Uroš CVETKOVIĆ, 5EHIF
+Uroš Cvetković, 5EHIF
 
 <<<
 
@@ -54,7 +55,7 @@ This creates a tension that is central to this diploma thesis: safety-oriented a
 
 The purpose of this thesis is to examine how privacy and data protection requirements can be applied to safety applications with location-sharing functionality without undermining their intended benefits. The work focuses on the back-end perspective, where many of the most important decisions are enforced: authentication, authorization, API design, data storage, logging, retention, and incident readiness. Rather than proposing a new theoretical framework, the thesis aims to derive practical design patterns and implementation principles that are realistic for modern application architectures.
 
-:sectnums:
+
 == Fundamentals of Privacy and Data Protection
 
 Location sharing is often introduced with a positive promise it can help people coordinate, check in with each other, or react faster in situations where time matters. At the same time, it creates a continuous stream of personal data that can reveal far more than a single point on a map - especially when those points are stored over time and correlated with other identifiers. Within the EU, the General Data Protection Regulation GDPR does not treat privacy as a purely legal wrapper around a technical system, but as a set of requirements that shape how data is collected, used, stored, secured, and deleted. The most important takeaway for an engineering-focused discussion is that lawful processing is necessary, but not sufficient the GDPR also demands data minimisation, clear purpose, strong security, and demonstrable accountability. <<ref1,[1]>>
@@ -548,7 +549,7 @@ When an incident is suspected, the first day is mostly about limiting damage and
 
 Finally, readiness improves significantly if these steps are practiced before they are needed. Short tabletop exercises and periodic reviews of logging, retention, and access control rules often find gaps that do not appear in normal development workflows. <<ref6,[6]>><<ref20,[20]>>
 
-:sectnums!:
+
 == Conclusion
 
 This diploma thesis shows that privacy in location-sharing features does not have to conflict with safety goals, as long as privacy is treated as an engineering requirement rather than a documentation afterthought. Location data is especially sensitive because even a small number of points - and even more so a stored history - can reveal routines, relationships, and private places. The key takeaway is that lawful processing is necessary but not sufficient: strong results come from data minimization, clear purpose limitation, privacy-friendly defaults, and demonstrable accountability implemented throughout the lifecycle.
